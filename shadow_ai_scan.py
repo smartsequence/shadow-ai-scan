@@ -96,7 +96,7 @@ RANK = {"high": 0, "mid": 1, "low": 2}
 
 STRINGS = {
     "ja": {
-        "target": "スキャン対象",
+        "target": "スキャン対象：",
         "summary": "{files} 個のファイルを読み、{n} 箇所が見つかりました",
         "summary_filtered": "{files} 個のファイルを読み、{n} 箇所が見つかりました。ここでは{level}の {shown} 件のみ表示します",
         "nothing": "見つかりませんでした。AI を使っていない証明にはなりません。このツールに見えないものを下で確認してください。",
@@ -131,7 +131,7 @@ STRINGS = {
         "bad_level": "--level の値が不正です：{value}。使えるのは {choices} です",
     },
     "ko": {
-        "target": "스캔 대상",
+        "target": "스캔 대상: ",
         "summary": "{files}개 파일을 읽어 {n}곳을 찾았습니다",
         "summary_filtered": "{files}개 파일을 읽어 {n}곳을 찾았습니다. 여기서는 {level} {shown}건만 표시합니다",
         "nothing": "찾지 못했습니다. AI를 쓰지 않는다는 뜻은 아닙니다. 이 도구가 보지 못하는 것을 아래에서 확인하세요.",
@@ -166,7 +166,7 @@ STRINGS = {
         "bad_level": "--level 값이 잘못되었습니다: {value}. 사용할 수 있는 값은 {choices} 입니다",
     },
     "zh-CN": {
-        "target": "扫描目标",
+        "target": "扫描目标：",
         "summary": "读了 {files} 个文件，找到 {n} 个地方要看",
         "summary_filtered": "读了 {files} 个文件，找到 {n} 个地方要看，这里只列{level}的 {shown} 处",
         "nothing": "没有找到。这不代表公司没在用 AI，往下看工具看不到的地方。",
@@ -201,7 +201,7 @@ STRINGS = {
         "bad_level": "--level 的值不对：{value}。可用的是 {choices}",
     },
     "zh-TW": {
-        "target": "掃描目標",
+        "target": "掃描目標：",
         "summary": "讀了 {files} 個檔案，找到 {n} 個地方要看",
         "summary_filtered": "讀了 {files} 個檔案，找到 {n} 個地方要看，這裡只列{level}的 {shown} 處",
         "nothing": "沒有找到。這不代表公司沒在用 AI，往下看工具看不到的地方。",
@@ -236,7 +236,7 @@ STRINGS = {
         "bad_level": "--level 的值不對：{value}。可用的是 {choices}",
     },
     "en": {
-        "target": "Target",
+        "target": "Target: ",
         "summary": "Read {files} files, found {n} places to look at",
         "summary_filtered": "Read {files} files, found {n} places to look at; showing only the {shown} at {level}",
         "nothing": "Nothing found. That is not proof nobody here uses AI. Read what this tool cannot see, below.",
@@ -271,7 +271,7 @@ STRINGS = {
         "bad_level": "Bad --level value: {value}. Accepted: {choices}",
     },
     "de": {
-        "target": "Ziel",
+        "target": "Ziel: ",
         "summary": "{files} Dateien gelesen, {n} Stellen gefunden",
         "summary_filtered": "{files} Dateien gelesen, {n} Stellen gefunden; gezeigt werden nur die {shown} mit {level}",
         "nothing": "Nichts gefunden. Das ist kein Beweis, dass hier niemand KI nutzt. Lesen Sie unten, was dieses Werkzeug nicht sieht.",
@@ -671,7 +671,7 @@ def main() -> int:
     shown = [f for f in findings if level is None or f.level == level]
     width = term_width()
 
-    print(c("shadow-ai-scan", _BOLD) + f"  {t('target')}: {root.name}")
+    print(c("shadow-ai-scan", _BOLD) + f"  {t('target')}{root.name}")
     if level:
         summary = t("summary_filtered", files=scanned, n=len(findings),
                     level=t.level_name(level), shown=len(shown))
