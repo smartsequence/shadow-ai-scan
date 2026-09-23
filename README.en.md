@@ -81,6 +81,35 @@ Every finding prints the file, the line number, the offending line, and one sent
 
 ---
 
+## Scope: which languages it actually covers
+
+**An extension allowlist decides everything.** Files outside this list are **never opened**:
+
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+
+So PHP, Rust, Kotlin, Swift, C/C++, `.xml` (including `pom.xml`), Dockerfiles and shell scripts are not
+scanned at all — a hardcoded key in one of those is invisible to this tool.
+
+Within the allowlist, the three clues do not cover the same ground:
+
+| Clue | Coverage |
+|---|---|
+| Key patterns | **Language agnostic**, any allowlisted file. But only four prefixes: Anthropic, OpenAI (new and legacy), Google |
+| AI hosts | **Language agnostic**, seven hosts |
+| SDK imports | Keyed on `import` / `from` / `require` → Python, JS/TS, Go, Ruby, Java work; **C# uses `using`, so it does not** (`.cs` files are read, but only the key and host clues apply) |
+| Dependency lists | Five only: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` and `Cargo.toml` are not read as dependency lists |
+
+The SDK list holds 10 modules named the Python way; scoped JS names such as `@anthropic-ai/sdk` and
+`@google/generative-ai` are not matched.
+
+Two more: files over 2 MB are skipped, and `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`,
+`dist` and `build` are not entered.
+
+Widening any of this is easy — those lists at the top of the file are the entire configuration.
+They sit there so you can edit them.
+
+---
+
 ## What it cannot see
 
 This is a keyword matcher, not deep static analysis. It prints these four limits itself at the end of every full run:

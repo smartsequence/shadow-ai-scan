@@ -81,6 +81,33 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 ---
 
+## 适用范围：它扫得到哪些语言
+
+**扩展名白名单决定一切。** 不在这张清单里的文件**完全不会被打开**：
+
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+
+所以 PHP、Rust、Kotlin、Swift、C/C++、`.xml`（含 `pom.xml`）、Dockerfile、shell 脚本都不扫——
+那些文件里就算有写死的密钥，这支工具也抓不到。
+
+在白名单之内，三条线索的覆盖也不一样：
+
+| 线索 | 覆盖 |
+|---|---|
+| 密钥样式 | **与语言无关**，任何白名单内的文件都扫。但只认四种前缀：Anthropic、OpenAI（新旧两种）、Google |
+| AI 域名 | **与语言无关**，七个域名 |
+| SDK 引用 | 靠 `import` / `from` / `require` 三个关键字 → Python、JS／TS、Go、Ruby、Java 可以；**C# 用 `using`，所以抓不到**（`.cs` 文件有被读，但只有密钥和域名那两条线有效） |
+| 依赖清单 | 只认五种：`requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`。`pom.xml`、`build.gradle`、`composer.json`、`.csproj`、`Cargo.toml` 都不认 |
+
+SDK 名单只有 10 个，而且用的是 Python 的包名；JS 那边的 `@anthropic-ai/sdk`、`@google/generative-ai`
+这类 scoped 名称抓不到。
+
+其他两条：单个文件超过 2 MB 会跳过；`.git`、`node_modules`、`__pycache__`、`.venv`、`venv`、`dist`、`build` 这些目录不进去。
+
+要扩范围很简单——文件最上面那几个清单就是全部的配置，加上去就好。这支工具刻意把配置放在那里，就是让你改的。
+
+---
+
 ## 它看不到的地方
 
 这支工具靠关键字比对，不是深度静态分析。跑完它会自己把这四件事打印出来：

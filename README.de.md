@@ -81,6 +81,35 @@ Jeder Fund nennt Datei, Zeilennummer, die betreffende Zeile und einen Satz dazu,
 
 ---
 
+## Geltungsbereich: welche Sprachen wirklich abgedeckt sind
+
+**Eine Endungs-Whitelist entscheidet alles.** Dateien ausserhalb dieser Liste werden **gar nicht geoeffnet**:
+
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+
+PHP, Rust, Kotlin, Swift, C/C++, `.xml` (auch `pom.xml`), Dockerfiles und Shell-Skripte werden also
+nicht durchsucht. Ein dort hartcodierter Schluessel ist fuer dieses Werkzeug unsichtbar.
+
+Auch innerhalb der Whitelist decken die drei Spuren nicht dasselbe ab:
+
+| Spur | Abdeckung |
+|---|---|
+| Schluesselmuster | **Sprachunabhaengig**, jede Datei der Whitelist. Aber nur vier Praefixe: Anthropic, OpenAI (neu und alt), Google |
+| KI-Domains | **Sprachunabhaengig**, sieben Domains |
+| SDK-Importe | Haengt an `import` / `from` / `require` → Python, JS/TS, Go, Ruby, Java funktionieren; **C# benutzt `using` und faellt durch** (`.cs` wird gelesen, aber nur Schluessel und Domains greifen) |
+| Abhaengigkeitslisten | Nur fuenf: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` und `Cargo.toml` werden nicht als Abhaengigkeitsliste gelesen |
+
+Die SDK-Liste enthaelt 10 Eintraege in Python-Schreibweise; JS-Namen mit Scope wie `@anthropic-ai/sdk`
+oder `@google/generative-ai` treffen nicht.
+
+Zwei weitere Punkte: Dateien ueber 2 MB werden uebersprungen, und `.git`, `node_modules`,
+`__pycache__`, `.venv`, `venv`, `dist` und `build` werden nicht betreten.
+
+Das alles zu erweitern ist einfach — die Listen ganz oben in der Datei sind die gesamte Konfiguration.
+Sie stehen dort, damit Sie sie aendern.
+
+---
+
 ## Was dieses Werkzeug nicht sieht
 
 Das ist ein Abgleich von Schlüsselwörtern, keine tiefe statische Analyse. Am Ende jedes vollständigen Laufs gibt es diese vier Grenzen selbst aus:
