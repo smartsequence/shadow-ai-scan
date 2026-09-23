@@ -28,6 +28,7 @@ import re
 import shutil
 import sys
 import unicodedata
+import warnings
 from pathlib import Path
 
 # ─────────────────────────────────────────────────────────────
@@ -318,16 +319,22 @@ def detect_lang(explicit: str | None) -> str:
     candidates = [explicit, os.environ.get("SHADOW_AI_LANG"),
                   os.environ.get("LC_ALL"), os.environ.get("LC_MESSAGES"),
                   os.environ.get("LANG")]
-    # Windows 多半沒有上面那些環境變數，才問作業系統
-    try:
-        candidates.append(locale.getdefaultlocale()[0])
-    except (ValueError, TypeError):
-        pass
     for candidate in candidates:
         if candidate:
             resolved = _normalise_lang(candidate)
             if resolved:
                 return resolved
+    # 上面都沒有（Windows 多半如此）才問作業系統。只在這裡才呼叫、而且關掉它的棄用警告：
+    # getdefaultlocale 在 Python 3.11 起會對 __main__ 印 DeprecationWarning 到 stderr，
+    # 每跑一次都印——錄 demo 時會出現在畫面上，觀眾用新版 Python 跑也會看到（2026-09-24 WSL 實測）。
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            resolved = _normalise_lang(locale.getdefaultlocale()[0] or "")
+        if resolved:
+            return resolved
+    except (ValueError, TypeError):
+        pass
     return DEFAULT_LANG
 
 
