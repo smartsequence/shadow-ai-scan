@@ -1,0 +1,15 @@
+# acme-shop 服務設定
+app:
+  name: acme-shop
+  env: production
+
+# 這三個網域是第三條偵測線索：就算程式碼包得再深，出口流量還是要打這裡
+endpoints:
+  payment: https://api.stripe.com/v1
+  recommend: https://api.openai.com/v1/chat/completions
+  support: https://api.anthropic.com/v1/messages
+  search: https://search-internal.acme.local/query
+
+timeouts_sec:
+  default: 10
+  llm: 60
