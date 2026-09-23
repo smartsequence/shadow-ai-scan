@@ -85,10 +85,10 @@ Every finding prints the file, the line number, the offending line, and one sent
 
 **An extension allowlist decides everything.** Files outside this list are **never opened**:
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
 
-So PHP, Rust, Kotlin, Swift, C/C++, `.xml` (including `pom.xml`), Dockerfiles and shell scripts are not
-scanned at all — a hardcoded key in one of those is invisible to this tool.
+So C/C++, Scala, Elixir, `.xml` (including `pom.xml`), Dockerfiles and shell scripts are not scanned
+at all — a hardcoded key in one of those is invisible to this tool.
 
 Within the allowlist, the three clues do not cover the same ground:
 
@@ -96,11 +96,12 @@ Within the allowlist, the three clues do not cover the same ground:
 |---|---|
 | Key patterns | **Language agnostic**, any allowlisted file. But only four prefixes: Anthropic, OpenAI (new and legacy), Google |
 | AI hosts | **Language agnostic**, seven hosts |
-| SDK imports | Keyed on `import` / `from` / `require` → Python, JS/TS, Go, Ruby, Java work; **C# uses `using`, so it does not** (`.cs` files are read, but only the key and host clues apply) |
-| Dependency lists | Five only: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` and `Cargo.toml` are not read as dependency lists |
+| SDK imports | Five keywords, **case insensitive**: `import` / `from` / `require` / `using` / `use`. Covers Python, JS/TS, Go, Ruby, Java, Kotlin, Swift (`import`), C#/VB.NET (`using`), Rust and PHP (`use`) |
+| Dependency lists | Five only: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` and `Cargo.toml` are not read as dependency lists — `.kts` files are read, but a Gradle `implementation(...)` line is not an import and will not be caught |
 
-The SDK list holds 10 modules named the Python way; scoped JS names such as `@anthropic-ai/sdk` and
-`@google/generative-ai` are not matched.
+On an import line the vendor name is matched as a **substring**, so Rust's `async_openai`, Swift's
+`OpenAIKit` and C#'s `Anthropic.SDK` are all caught. That relaxation applies to import lines only;
+everywhere else matching stays on whole words.
 
 Two more: files over 2 MB are skipped, and `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`,
 `dist` and `build` are not entered.

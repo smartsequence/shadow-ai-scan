@@ -85,10 +85,10 @@ Jeder Fund nennt Datei, Zeilennummer, die betreffende Zeile und einen Satz dazu,
 
 **Eine Endungs-Whitelist entscheidet alles.** Dateien ausserhalb dieser Liste werden **gar nicht geoeffnet**:
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
 
-PHP, Rust, Kotlin, Swift, C/C++, `.xml` (auch `pom.xml`), Dockerfiles und Shell-Skripte werden also
-nicht durchsucht. Ein dort hartcodierter Schluessel ist fuer dieses Werkzeug unsichtbar.
+C/C++, Scala, Elixir, `.xml` (auch `pom.xml`), Dockerfiles und Shell-Skripte werden also nicht
+durchsucht. Ein dort hartcodierter Schluessel ist fuer dieses Werkzeug unsichtbar.
 
 Auch innerhalb der Whitelist decken die drei Spuren nicht dasselbe ab:
 
@@ -96,16 +96,17 @@ Auch innerhalb der Whitelist decken die drei Spuren nicht dasselbe ab:
 |---|---|
 | Schluesselmuster | **Sprachunabhaengig**, jede Datei der Whitelist. Aber nur vier Praefixe: Anthropic, OpenAI (neu und alt), Google |
 | KI-Domains | **Sprachunabhaengig**, sieben Domains |
-| SDK-Importe | Haengt an `import` / `from` / `require` → Python, JS/TS, Go, Ruby, Java funktionieren; **C# benutzt `using` und faellt durch** (`.cs` wird gelesen, aber nur Schluessel und Domains greifen) |
-| Abhaengigkeitslisten | Nur fuenf: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` und `Cargo.toml` werden nicht als Abhaengigkeitsliste gelesen |
+| SDK-Importe | Fuenf Schluesselwoerter, **ohne Beachtung der Gross-/Kleinschreibung**: `import` / `from` / `require` / `using` / `use`. Deckt Python, JS/TS, Go, Ruby, Java, Kotlin, Swift (`import`), C#/VB.NET (`using`), Rust und PHP (`use`) ab |
+| Abhaengigkeitslisten | Nur fuenf: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` und `Cargo.toml` werden nicht als Abhaengigkeitsliste gelesen — `.kts` wird zwar gelesen, aber eine Gradle-Zeile `implementation(...)` ist kein Import und wird nicht erfasst |
 
-Die SDK-Liste enthaelt 10 Eintraege in Python-Schreibweise; JS-Namen mit Scope wie `@anthropic-ai/sdk`
-oder `@google/generative-ai` treffen nicht.
+In einer Import-Zeile wird der Herstellername als **Teilzeichenkette** gesucht, daher werden auch
+Rusts `async_openai`, Swifts `OpenAIKit` und C#s `Anthropic.SDK` gefunden. Diese Lockerung gilt nur
+fuer Import-Zeilen; sonst bleibt es beim Abgleich ganzer Woerter.
 
 Zwei weitere Punkte: Dateien ueber 2 MB werden uebersprungen, und `.git`, `node_modules`,
 `__pycache__`, `.venv`, `venv`, `dist` und `build` werden nicht betreten.
 
-Das alles zu erweitern ist einfach — die Listen ganz oben in der Datei sind die gesamte Konfiguration.
+Weiter zu erweitern ist einfach — die Listen ganz oben in der Datei sind die gesamte Konfiguration.
 Sie stehen dort, damit Sie sie aendern.
 
 ---

@@ -41,6 +41,23 @@ SDK_MODULES = [
     "google.generativeai", "vertexai", "langchain", "llama_index", "ollama",
 ]
 
+# 引入 SDK 的寫法。每種語言不一樣，少一個就少掃一種語言：
+#   import / from  Python、JS／TS、Go、Java、Kotlin、Swift
+#   require        Ruby、CommonJS
+#   using          C#、VB.NET
+#   use            Rust、PHP
+IMPORT_KEYWORDS = ["import", "from", "require", "using", "use"]
+
+# 廠商名。在「引入」那一行上以**子字串**比對（不要求前後是字界），
+# 因為各語言的包裝名長得不一樣：Rust 的 async_openai、Swift 的 OpenAIKit、
+# C# 的 Anthropic.SDK——用整詞比對一個都抓不到。
+# 只在引入行上這樣放寬，所以誤判成本是「多一筆要人看一眼」，不是滿江紅。
+# ⚠ 刻意不放 llm、ai、gpt 這種泛稱，那才會真的滿江紅。
+VENDOR_TOKENS = [
+    "openai", "anthropic", "claude", "gemini", "mistral", "cohere",
+    "ollama", "langchain", "llamaindex", "vertexai", "huggingface",
+]
+
 # 出口流量會打的網域。程式碼包得再深，這條線索還是在。
 AI_HOSTS = [
     "api.openai.com", "api.anthropic.com", "api.cohere.ai",
@@ -57,7 +74,9 @@ KEY_PATTERNS = [
     (re.compile(r"AIza[A-Za-z0-9_-]{20,}"), "Google API key"),
 ]
 
+# 掃哪些副檔名。不在這裡的檔案連開都不會開——所以這張表就是覆蓋範圍本身。
 SCAN_SUFFIX = {".py", ".js", ".ts", ".tsx", ".go", ".rb", ".java", ".cs",
+               ".php", ".rs", ".kt", ".kts", ".swift",
                ".yaml", ".yml", ".json", ".toml", ".ini", ".env", ".txt", ".example"}
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}
 DEP_FILES = {"requirements.txt", "package.json", "pyproject.toml", "go.mod", "Gemfile"}
@@ -495,6 +514,33 @@ def _is_commented(line: str) -> bool:
     return line.lstrip().startswith(("#", "//", "*", "--"))
 
 
+_IMPORT_RX = re.compile(r"\b(" + "|".join(IMPORT_KEYWORDS) + r")\b", re.IGNORECASE)
+
+
+def _imported_ai_module(line: str) -> str | None:
+    """這一行是不是在引入 AI SDK？是的話回傳引到的名字。
+
+    兩段式：先確認這一行有引入的動作，再看引的東西像不像 AI。
+    分兩段是因為「引入」在各語言長得不一樣，「AI」則到處都一樣；
+    合成一條正規表示式會變得沒人看得懂，也很難加語言。
+
+    大小寫一律忽略——C# 的 `using OpenAI;` 與 Swift 的 `import OpenAI` 都是
+    大寫開頭，用區分大小寫的比對一個都抓不到（2026-09-24 實測）。
+    """
+    if not _IMPORT_RX.search(line):
+        return None
+    low = line.lower()
+    # 先試完整模組名，報告裡看得出引的是哪一個
+    for mod in SDK_MODULES:
+        if re.search(rf"\b{re.escape(mod)}\b", low):
+            return mod
+    # 再退一步用廠商名做子字串比對，接住各語言的包裝名
+    for token in VENDOR_TOKENS:
+        if token in low:
+            return token
+    return None
+
+
 def scan_line(rel: str, lineno: int, line: str, in_deps: bool) -> list[Finding]:
     out = []
     stripped = line.strip()
@@ -517,16 +563,15 @@ def scan_line(rel: str, lineno: int, line: str, in_deps: bool) -> list[Finding]:
                 break
         return out
 
-    # 3. import AI SDK
-    for mod in SDK_MODULES:
-        if re.search(rf"\b(import|from|require)\b.*\b{re.escape(mod)}\b", stripped):
-            if commented:
-                out.append(Finding(rel, lineno, "low", "kind_commented", {"mod": mod},
-                                   "why_commented", stripped))
-            else:
-                out.append(Finding(rel, lineno, "mid", "kind_import", {"mod": mod},
-                                   "why_import", stripped))
-            break
+    # 3. 引入 AI SDK。先找這一行有沒有引入的動作，再看引的是不是 AI。
+    mod = _imported_ai_module(stripped)
+    if mod:
+        if commented:
+            out.append(Finding(rel, lineno, "low", "kind_commented", {"mod": mod},
+                               "why_commented", stripped))
+        else:
+            out.append(Finding(rel, lineno, "mid", "kind_import", {"mod": mod},
+                               "why_import", stripped))
 
     # 4. 設定檔裡的 AI 網域
     for host in AI_HOSTS:

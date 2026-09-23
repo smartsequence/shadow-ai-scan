@@ -85,10 +85,10 @@ Python 본체 외에 설치할 것은 없습니다. 패키지도, 네트워크�
 
 **확장자 허용 목록이 모든 것을 정합니다.** 이 목록에 없는 파일은 **열리지도 않습니다**:
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
 
-그래서 PHP, Rust, Kotlin, Swift, C/C++, `.xml`(`pom.xml` 포함), Dockerfile, 셸 스크립트는
-아예 검사하지 않습니다. 거기에 키가 박혀 있어도 이 도구에는 보이지 않습니다.
+그래서 C/C++, Scala, Elixir, `.xml`(`pom.xml` 포함), Dockerfile, 셸 스크립트는 아예 검사하지
+않습니다. 거기에 키가 박혀 있어도 이 도구에는 보이지 않습니다.
 
 허용 목록 안에서도 세 단서의 범위는 서로 다릅니다.
 
@@ -96,16 +96,16 @@ Python 본체 외에 설치할 것은 없습니다. 패키지도, 네트워크�
 |---|---|
 | 키 패턴 | **언어와 무관**. 대상 확장자 파일 전부. 다만 접두사는 네 가지뿐(Anthropic, OpenAI 신·구, Google) |
 | AI 도메인 | **언어와 무관**. 일곱 개 도메인 |
-| SDK 참조 | `import` / `from` / `require` 세 단어에 의존 → Python, JS/TS, Go, Ruby, Java 는 가능. **C# 은 `using` 이라 잡히지 않습니다**(`.cs` 는 읽지만 키와 도메인 두 단서만 작동) |
-| 의존 목록 | 다섯 가지뿐: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj`, `Cargo.toml` 은 의존 목록으로 읽지 않습니다 |
+| SDK 참조 | 다섯 개 키워드, **대소문자 무시**: `import` / `from` / `require` / `using` / `use`. Python, JS/TS, Go, Ruby, Java, Kotlin, Swift(`import`), C#/VB.NET(`using`), Rust·PHP(`use`) 를 다룹니다 |
+| 의존 목록 | 다섯 가지뿐: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj`, `Cargo.toml` 은 의존 목록으로 읽지 않습니다. `.kts` 파일은 읽지만 Gradle 의 `implementation(...)` 은 import 가 아니라 잡히지 않습니다 |
 
-SDK 목록은 10개이고 이름은 Python 방식입니다. JS 쪽의 `@anthropic-ai/sdk`, `@google/generative-ai`
-같은 스코프 이름은 맞지 않습니다.
+참조 줄에서는 벤더 이름을 **부분 문자열**로 맞춥니다. 그래서 Rust 의 `async_openai`, Swift 의
+`OpenAIKit`, C# 의 `Anthropic.SDK` 도 잡힙니다. 이 완화는 참조 줄에만 적용되고 나머지는 단어 단위 그대로입니다.
 
 두 가지 더. 2 MB 가 넘는 파일은 건너뜁니다. `.git`, `node_modules`, `__pycache__`, `.venv`,
 `venv`, `dist`, `build` 에는 들어가지 않습니다.
 
-넓히는 건 쉽습니다. 파일 맨 위의 그 목록들이 설정의 전부이고, 고치라고 거기에 둔 것입니다.
+더 넓히는 건 쉽습니다. 파일 맨 위의 그 목록들이 설정의 전부이고, 고치라고 거기에 둔 것입니다.
 
 ---
 

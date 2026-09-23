@@ -85,10 +85,10 @@ Python 本体以外に入れるものはありません。パッケージ不要�
 
 **拡張子のホワイトリストがすべてを決めます。** この一覧にないファイルは**開かれもしません**：
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
 
-PHP、Rust、Kotlin、Swift、C/C++、`.xml`（`pom.xml` を含む）、Dockerfile、シェルスクリプトは
-対象外です。そこに鍵が直接書かれていても、このツールには見えません。
+C/C++、Scala、Elixir、`.xml`（`pom.xml` を含む）、Dockerfile、シェルスクリプトは対象外です。
+そこに鍵が直接書かれていても、このツールには見えません。
 
 ホワイトリストの中でも、3 つの手がかりの守備範囲は同じではありません。
 
@@ -96,16 +96,16 @@ PHP、Rust、Kotlin、Swift、C/C++、`.xml`（`pom.xml` を含む）、Dockerfi
 |---|---|
 | 鍵のパターン | **言語に依存しません**。対象拡張子のファイルすべて。ただし接頭辞は 4 種類のみ（Anthropic、OpenAI の新旧、Google） |
 | AI ドメイン | **言語に依存しません**。7 ドメイン |
-| SDK の読み込み | `import` / `from` / `require` の 3 語が手がかり → Python、JS／TS、Go、Ruby、Java は可。**C# は `using` なので検出できません**（`.cs` は読みますが、鍵とドメインの 2 本だけが効きます） |
-| 依存リスト | 5 種類のみ：`requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`。`pom.xml`、`build.gradle`、`composer.json`、`.csproj`、`Cargo.toml` は依存リストとしては読みません |
+| SDK の読み込み | 5 つのキーワード、**大文字小文字は区別しません**：`import` / `from` / `require` / `using` / `use`。Python、JS／TS、Go、Ruby、Java、Kotlin、Swift（`import`）、C#／VB.NET（`using`）、Rust と PHP（`use`）をカバー |
+| 依存リスト | 5 種類のみ：`requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`。`pom.xml`、`build.gradle`、`composer.json`、`.csproj`、`Cargo.toml` は依存リストとしては読みません。`.kts` は読みますが、Gradle の `implementation(...)` は import ではないため検出できません |
 
-SDK 一覧は 10 件で、名前は Python 流です。JS 側の `@anthropic-ai/sdk`、`@google/generative-ai` の
-ようなスコープ付き名は一致しません。
+読み込み行では、ベンダー名を**部分一致**で見ます。そのため Rust の `async_openai`、Swift の
+`OpenAIKit`、C# の `Anthropic.SDK` も拾えます。この緩和は読み込み行だけで、他は単語単位のままです。
 
 あと 2 点。2 MB を超えるファイルは飛ばします。`.git`、`node_modules`、`__pycache__`、`.venv`、
 `venv`、`dist`、`build` には入りません。
 
-広げるのは簡単です。ファイル冒頭のあの数本のリストが設定のすべてで、書き換えてもらうためにそこに置いてあります。
+さらに広げるのは簡単です。ファイル冒頭のあの数本のリストが設定のすべてで、書き換えてもらうためにそこに置いてあります。
 
 ---
 
