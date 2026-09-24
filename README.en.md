@@ -83,31 +83,29 @@ Every finding prints the file, the line number, the offending line, and one sent
 
 ## Scope: which languages it actually covers
 
-**An extension allowlist decides everything.** Files outside this list are **never opened**:
+**The extension (or file name) decides whether a file is opened at all.** Anything not listed below is **never opened**.
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+- Code: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- Config: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- Dependency lists: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-So C/C++, Scala, Elixir, `.xml` (including `pom.xml`), Dockerfiles and shell scripts are not scanned
-at all — a hardcoded key in one of those is invisible to this tool.
+Anything else (`.md`, images, binaries) is skipped. `.md` on purpose: docs mention `api.openai.com` all the time, and scanning them would only bury you in noise.
 
-Within the allowlist, the three clues do not cover the same ground:
+The three clues do not cover the same ground:
 
 | Clue | Coverage |
 |---|---|
-| Key patterns | **Language agnostic**, any allowlisted file. But only four prefixes: Anthropic, OpenAI (new and legacy), Google |
+| Key patterns | **Language agnostic**, every file type above. Four prefixes only: Anthropic, OpenAI (new and legacy), Google |
 | AI hosts | **Language agnostic**, seven hosts |
-| SDK imports | Five keywords, **case insensitive**: `import` / `from` / `require` / `using` / `use`. Covers Python, JS/TS, Go, Ruby, Java, Kotlin, Swift (`import`), C#/VB.NET (`using`), Rust and PHP (`use`) |
-| Dependency lists | Five only: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` and `Cargo.toml` are not read as dependency lists — `.kts` files are read, but a Gradle `implementation(...)` line is not an import and will not be caught |
+| SDK imports | Five keywords, **case insensitive**: `import` / `from` / `require` / `using` / `use`. Covers Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart (`import`), C#/VB.NET (`using`), Rust and PHP (`use`) |
+| Dependency lists | Every list above, always reported as low risk ("installed, not sure it is used") |
 
-On an import line the vendor name is matched as a **substring**, so Rust's `async_openai`, Swift's
-`OpenAIKit` and C#'s `Anthropic.SDK` are all caught. That relaxation applies to import lines only;
-everywhere else matching stays on whole words.
+On import lines and in dependency lists the vendor name is matched as a **substring**, so Rust's `async_openai`,
+Swift's `OpenAIKit`, C#'s `Anthropic.SDK` and Maven's `openai-java` are all caught. Everywhere else matching stays on whole words.
 
-Two more: files over 2 MB are skipped, and `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`,
-`dist` and `build` are not entered.
+Two more: files over 2 MB are skipped, and `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist` and `build` are not entered.
 
-Widening any of this is easy — those lists at the top of the file are the entire configuration.
-They sit there so you can edit them.
+Widening any of this is easy — those lists at the top of the file are the entire configuration. They sit there so you can edit them.
 
 ---
 

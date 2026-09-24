@@ -83,27 +83,27 @@ Python 本体以外に入れるものはありません。パッケージ不要�
 
 ## 適用範囲：実際にどの言語を見ているか
 
-**拡張子のホワイトリストがすべてを決めます。** この一覧にないファイルは**開かれもしません**：
+**拡張子（またはファイル名）で開くかどうかが決まります。** 下にないファイルは**開かれもしません**。
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+- コード：`.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- 設定ファイル：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- 依存リスト：`requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-C/C++、Scala、Elixir、`.xml`（`pom.xml` を含む）、Dockerfile、シェルスクリプトは対象外です。
-そこに鍵が直接書かれていても、このツールには見えません。
+それ以外（`.md`、画像、バイナリ）は対象外です。`.md` は意図的です。ドキュメントに `api.openai.com` が出てくるのは普通のことで、見ればノイズだらけになります。
 
-ホワイトリストの中でも、3 つの手がかりの守備範囲は同じではありません。
+3 つの手がかりの守備範囲は同じではありません。
 
 | 手がかり | 範囲 |
 |---|---|
-| 鍵のパターン | **言語に依存しません**。対象拡張子のファイルすべて。ただし接頭辞は 4 種類のみ（Anthropic、OpenAI の新旧、Google） |
+| 鍵のパターン | **言語に依存しません**。上のすべての種類が対象。接頭辞は 4 種類のみ（Anthropic、OpenAI の新旧、Google） |
 | AI ドメイン | **言語に依存しません**。7 ドメイン |
-| SDK の読み込み | 5 つのキーワード、**大文字小文字は区別しません**：`import` / `from` / `require` / `using` / `use`。Python、JS／TS、Go、Ruby、Java、Kotlin、Swift（`import`）、C#／VB.NET（`using`）、Rust と PHP（`use`）をカバー |
-| 依存リスト | 5 種類のみ：`requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`。`pom.xml`、`build.gradle`、`composer.json`、`.csproj`、`Cargo.toml` は依存リストとしては読みません。`.kts` は読みますが、Gradle の `implementation(...)` は import ではないため検出できません |
+| SDK の読み込み | 5 つのキーワード、**大文字小文字は区別しません**：`import` / `from` / `require` / `using` / `use`。Python、JS／TS、Go、Ruby、Java、Kotlin、Swift、Scala、Dart（`import`）、C#／VB.NET（`using`）、Rust と PHP（`use`） |
+| 依存リスト | 上の一覧すべて。常に低リスク（「入っているが使っているかは不明」）として報告 |
 
-読み込み行では、ベンダー名を**部分一致**で見ます。そのため Rust の `async_openai`、Swift の
-`OpenAIKit`、C# の `Anthropic.SDK` も拾えます。この緩和は読み込み行だけで、他は単語単位のままです。
+読み込み行と依存リストでは、ベンダー名を**部分一致**で見ます。Rust の `async_openai`、Swift の `OpenAIKit`、
+C# の `Anthropic.SDK`、Maven の `openai-java` も拾えます。それ以外は単語単位のままです。
 
-あと 2 点。2 MB を超えるファイルは飛ばします。`.git`、`node_modules`、`__pycache__`、`.venv`、
-`venv`、`dist`、`build` には入りません。
+あと 2 点。2 MB を超えるファイルは飛ばします。`.git`、`node_modules`、`__pycache__`、`.venv`、`venv`、`dist`、`build` には入りません。
 
 さらに広げるのは簡単です。ファイル冒頭のあの数本のリストが設定のすべてで、書き換えてもらうためにそこに置いてあります。
 

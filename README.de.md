@@ -83,31 +83,29 @@ Jeder Fund nennt Datei, Zeilennummer, die betreffende Zeile und einen Satz dazu,
 
 ## Geltungsbereich: welche Sprachen wirklich abgedeckt sind
 
-**Eine Endungs-Whitelist entscheidet alles.** Dateien ausserhalb dieser Liste werden **gar nicht geoeffnet**:
+**Die Endung (oder der Dateiname) entscheidet, ob eine Datei überhaupt geöffnet wird.** Alles, was unten nicht steht, wird **nie geöffnet**.
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+- Code: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- Konfiguration: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- Abhängigkeitslisten: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-C/C++, Scala, Elixir, `.xml` (auch `pom.xml`), Dockerfiles und Shell-Skripte werden also nicht
-durchsucht. Ein dort hartcodierter Schluessel ist fuer dieses Werkzeug unsichtbar.
+Alles andere (`.md`, Bilder, Binärdateien) wird übersprungen. `.md` absichtlich: in Dokumentation steht `api.openai.com` ständig, das würde nur Rauschen erzeugen.
 
-Auch innerhalb der Whitelist decken die drei Spuren nicht dasselbe ab:
+Die drei Spuren decken nicht dasselbe ab:
 
 | Spur | Abdeckung |
 |---|---|
-| Schluesselmuster | **Sprachunabhaengig**, jede Datei der Whitelist. Aber nur vier Praefixe: Anthropic, OpenAI (neu und alt), Google |
-| KI-Domains | **Sprachunabhaengig**, sieben Domains |
-| SDK-Importe | Fuenf Schluesselwoerter, **ohne Beachtung der Gross-/Kleinschreibung**: `import` / `from` / `require` / `using` / `use`. Deckt Python, JS/TS, Go, Ruby, Java, Kotlin, Swift (`import`), C#/VB.NET (`using`), Rust und PHP (`use`) ab |
-| Abhaengigkeitslisten | Nur fuenf: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj` und `Cargo.toml` werden nicht als Abhaengigkeitsliste gelesen — `.kts` wird zwar gelesen, aber eine Gradle-Zeile `implementation(...)` ist kein Import und wird nicht erfasst |
+| Schlüsselmuster | **Sprachunabhängig**, alle Dateiarten oben. Nur vier Präfixe: Anthropic, OpenAI (neu und alt), Google |
+| KI-Domains | **Sprachunabhängig**, sieben Domains |
+| SDK-Importe | Fünf Schlüsselwörter, **ohne Beachtung der Groß-/Kleinschreibung**: `import` / `from` / `require` / `using` / `use`. Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart (`import`), C#/VB.NET (`using`), Rust und PHP (`use`) |
+| Abhängigkeitslisten | Alle oben genannten, immer als geringes Risiko gemeldet („installiert, ob benutzt, unklar“) |
 
-In einer Import-Zeile wird der Herstellername als **Teilzeichenkette** gesucht, daher werden auch
-Rusts `async_openai`, Swifts `OpenAIKit` und C#s `Anthropic.SDK` gefunden. Diese Lockerung gilt nur
-fuer Import-Zeilen; sonst bleibt es beim Abgleich ganzer Woerter.
+In Import-Zeilen und Abhängigkeitslisten wird der Herstellername als **Teilzeichenkette** gesucht, daher werden auch Rusts `async_openai`,
+Swifts `OpenAIKit`, C#s `Anthropic.SDK` und Mavens `openai-java` gefunden. Sonst bleibt es beim Abgleich ganzer Wörter.
 
-Zwei weitere Punkte: Dateien ueber 2 MB werden uebersprungen, und `.git`, `node_modules`,
-`__pycache__`, `.venv`, `venv`, `dist` und `build` werden nicht betreten.
+Zwei weitere Punkte: Dateien über 2 MB werden übersprungen, und `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist` und `build` werden nicht betreten.
 
-Weiter zu erweitern ist einfach — die Listen ganz oben in der Datei sind die gesamte Konfiguration.
-Sie stehen dort, damit Sie sie aendern.
+Weiter zu erweitern ist einfach — die Listen ganz oben in der Datei sind die gesamte Konfiguration. Sie stehen dort, damit Sie sie ändern.
 
 ---
 

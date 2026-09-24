@@ -85,24 +85,25 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 ## 適用範圍：它掃得到哪些語言
 
-**副檔名白名單決定一切。** 不在這張清單裡的檔案**完全不會被打開**：
+**看副檔名（或檔名）決定開不開。** 不在下面的檔案**完全不會被打開**。
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+- 程式碼：`.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- 設定檔：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- 相依清單：`requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-所以 C/C++、Scala、Elixir、`.xml`（含 `pom.xml`）、Dockerfile、shell script 都不掃——
-那些檔案裡就算有寫死的金鑰，這支工具也抓不到。
+沒列到的（例如 `.md`、圖片、二進位檔）不掃。`.md` 是刻意的：文件裡提到 `api.openai.com` 是常態，掃了只會滿江紅。
 
-在白名單之內，三條線索的覆蓋也不一樣：
+三條線索的覆蓋不一樣：
 
 | 線索 | 覆蓋 |
 |---|---|
-| 金鑰樣式 | **與語言無關**，任何白名單內的檔案都掃。但只認四種前綴：Anthropic、OpenAI（新舊兩種）、Google |
+| 金鑰樣式 | **與語言無關**，上面每一種檔都掃。只認四種前綴：Anthropic、OpenAI（新舊兩種）、Google |
 | AI 網域 | **與語言無關**，七個網域 |
-| SDK 引用 | 認五個關鍵字：`import` / `from` / `require` / `using` / `use`，**忽略大小寫**。涵蓋 Python、JS／TS、Go、Ruby、Java、Kotlin、Swift（`import`）、C#／VB.NET（`using`）、Rust／PHP（`use`） |
-| 相依清單 | 只認五種：`requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`。`pom.xml`、`build.gradle`、`composer.json`、`.csproj`、`Cargo.toml` 都不認——`.kts` 檔本身會被讀，但 Gradle 的 `implementation(...)` 不算 import，抓不到 |
+| SDK 引用 | 認五個關鍵字：`import` / `from` / `require` / `using` / `use`，**忽略大小寫**。涵蓋 Python、JS／TS、Go、Ruby、Java、Kotlin、Swift、Scala、Dart（`import`）、C#／VB.NET（`using`）、Rust／PHP（`use`） |
+| 相依清單 | 上面那一列都認，一律列為低風險（「裝了，不確定在不在用」） |
 
-引入那一行上，廠商名是用**子字串**比對的，所以 Rust 的 `async_openai`、Swift 的 `OpenAIKit`、
-C# 的 `Anthropic.SDK` 都抓得到。只在引入行上放寬，別的地方仍是整詞比對。
+引入那一行與相依清單裡，廠商名是用**子字串**比對的，所以 Rust 的 `async_openai`、Swift 的 `OpenAIKit`、
+C# 的 `Anthropic.SDK`、Maven 的 `openai-java` 都抓得到。只在這兩處放寬，別的地方仍是整詞比對。
 
 其他兩條：單檔超過 2 MB 會跳過；`.git`、`node_modules`、`__pycache__`、`.venv`、`venv`、`dist`、`build` 這些目錄不進去。
 

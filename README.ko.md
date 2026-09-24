@@ -83,27 +83,27 @@ Python 본체 외에 설치할 것은 없습니다. 패키지도, 네트워크�
 
 ## 적용 범위: 실제로 어떤 언어를 보는가
 
-**확장자 허용 목록이 모든 것을 정합니다.** 이 목록에 없는 파일은 **열리지도 않습니다**:
+**확장자(또는 파일 이름)로 열지 말지가 정해집니다.** 아래에 없는 파일은 **열리지도 않습니다**.
 
-`.py` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.php` `.rs` `.kt` `.kts` `.swift` `.yaml` `.yml` `.json` `.toml` `.ini` `.env` `.txt` `.example`
+- 코드: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- 설정 파일: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- 의존 목록: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-그래서 C/C++, Scala, Elixir, `.xml`(`pom.xml` 포함), Dockerfile, 셸 스크립트는 아예 검사하지
-않습니다. 거기에 키가 박혀 있어도 이 도구에는 보이지 않습니다.
+그 밖의 것(`.md`, 이미지, 바이너리)은 검사하지 않습니다. `.md` 는 의도적입니다. 문서에 `api.openai.com` 이 나오는 건 흔한 일이라 검사하면 잡음만 쌓입니다.
 
-허용 목록 안에서도 세 단서의 범위는 서로 다릅니다.
+세 단서의 범위는 서로 다릅니다.
 
 | 단서 | 범위 |
 |---|---|
-| 키 패턴 | **언어와 무관**. 대상 확장자 파일 전부. 다만 접두사는 네 가지뿐(Anthropic, OpenAI 신·구, Google) |
+| 키 패턴 | **언어와 무관**. 위의 모든 종류. 접두사는 네 가지뿐(Anthropic, OpenAI 신·구, Google) |
 | AI 도메인 | **언어와 무관**. 일곱 개 도메인 |
-| SDK 참조 | 다섯 개 키워드, **대소문자 무시**: `import` / `from` / `require` / `using` / `use`. Python, JS/TS, Go, Ruby, Java, Kotlin, Swift(`import`), C#/VB.NET(`using`), Rust·PHP(`use`) 를 다룹니다 |
-| 의존 목록 | 다섯 가지뿐: `requirements.txt`, `package.json`, `pyproject.toml`, `go.mod`, `Gemfile`. `pom.xml`, `build.gradle`, `composer.json`, `.csproj`, `Cargo.toml` 은 의존 목록으로 읽지 않습니다. `.kts` 파일은 읽지만 Gradle 의 `implementation(...)` 은 import 가 아니라 잡히지 않습니다 |
+| SDK 참조 | 다섯 개 키워드, **대소문자 무시**: `import` / `from` / `require` / `using` / `use`. Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart(`import`), C#/VB.NET(`using`), Rust·PHP(`use`) |
+| 의존 목록 | 위 목록 전부. 항상 낮은 위험("설치됐지만 쓰는지는 모름")으로 보고 |
 
-참조 줄에서는 벤더 이름을 **부분 문자열**로 맞춥니다. 그래서 Rust 의 `async_openai`, Swift 의
-`OpenAIKit`, C# 의 `Anthropic.SDK` 도 잡힙니다. 이 완화는 참조 줄에만 적용되고 나머지는 단어 단위 그대로입니다.
+참조 줄과 의존 목록에서는 벤더 이름을 **부분 문자열**로 맞춥니다. 그래서 Rust 의 `async_openai`, Swift 의 `OpenAIKit`,
+C# 의 `Anthropic.SDK`, Maven 의 `openai-java` 도 잡힙니다. 나머지는 단어 단위 그대로입니다.
 
-두 가지 더. 2 MB 가 넘는 파일은 건너뜁니다. `.git`, `node_modules`, `__pycache__`, `.venv`,
-`venv`, `dist`, `build` 에는 들어가지 않습니다.
+두 가지 더. 2 MB 가 넘는 파일은 건너뜁니다. `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build` 에는 들어가지 않습니다.
 
 더 넓히는 건 쉽습니다. 파일 맨 위의 그 목록들이 설정의 전부이고, 고치라고 거기에 둔 것입니다.
 

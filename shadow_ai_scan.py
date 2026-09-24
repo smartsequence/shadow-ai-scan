@@ -76,11 +76,25 @@ KEY_PATTERNS = [
 ]
 
 # 掃哪些副檔名。不在這裡的檔案連開都不會開——所以這張表就是覆蓋範圍本身。
-SCAN_SUFFIX = {".py", ".js", ".ts", ".tsx", ".go", ".rb", ".java", ".cs",
-               ".php", ".rs", ".kt", ".kts", ".swift",
-               ".yaml", ".yml", ".json", ".toml", ".ini", ".env", ".txt", ".example"}
+SCAN_SUFFIX = {
+    # 程式碼
+    ".py", ".ipynb", ".js", ".ts", ".tsx", ".go", ".rb", ".java", ".cs", ".vb",
+    ".php", ".rs", ".kt", ".kts", ".swift", ".scala", ".dart",
+    ".c", ".cc", ".cpp", ".h", ".hpp", ".sh", ".ps1",
+    # 設定檔：金鑰與 API 網域最常躲的地方
+    ".yaml", ".yml", ".json", ".toml", ".ini", ".txt", ".example",
+    ".config", ".xml", ".properties", ".gradle", ".tf", ".tfvars",
+}
+# 沒有副檔名、只能看檔名的。⚠ `.env` 也在這一類：Python 認為 `.env` 這個檔「沒有副檔名」
+# （Path(".env").suffix == ""），所以把 ".env" 放進 SCAN_SUFFIX 從來沒生效過——
+# 真正的 .env 一直沒被打開，只有 .env.example 碰巧因為 .example 被掃到（2026-09-24 實測）。
+SCAN_NAME_PREFIX = (".env", "Dockerfile", "Containerfile")
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}
-DEP_FILES = {"requirements.txt", "package.json", "pyproject.toml", "go.mod", "Gemfile"}
+# 相依清單：只證明「裝了」，一律低風險。
+DEP_FILES = {"requirements.txt", "Pipfile", "package.json", "pyproject.toml", "go.mod", "Gemfile",
+             "packages.config", "pom.xml", "build.gradle", "build.gradle.kts",
+             "composer.json", "Cargo.toml", "Package.swift"}
+DEP_SUFFIX = {".csproj", ".vbproj", ".fsproj"}
 
 MAX_BYTES = 2_000_000  # 超過就跳過，避免把產物檔讀進來
 
@@ -548,6 +562,34 @@ def _imported_ai_module(line: str) -> str | None:
     return None
 
 
+def _dep_ai_module(line: str) -> str | None:
+    """相依清單的一行裡有沒有 AI 套件。
+
+    各生態系寫法差很多：`openai==1.0`、`<PackageReference Include="OpenAI" …>`、
+    `<artifactId>openai-java</artifactId>`、`async-openai = "0.23"`、`.package(url: ".../OpenAI")`。
+    所以忽略大小寫，先試完整模組名（報告看得出是哪一個），再退一步用廠商名做子字串比對。
+    """
+    low = line.lower()
+    for mod in SDK_MODULES:
+        root = mod.split(".")[0]
+        if re.search(rf"(^|[\"'\s]){re.escape(root)}\b", low):
+            return root
+    for token in VENDOR_TOKENS:
+        if token in low:
+            return token
+    return None
+
+
+def _file_kind(p: Path) -> str | None:
+    """"deps"（相依清單）、"code"（其他要掃的檔），或 None（不打開）。"""
+    name, suffix = p.name, p.suffix.lower()
+    if name in DEP_FILES or suffix in DEP_SUFFIX:
+        return "deps"
+    if suffix in SCAN_SUFFIX or name.startswith(SCAN_NAME_PREFIX):
+        return "code"
+    return None
+
+
 def scan_line(rel: str, lineno: int, line: str, in_deps: bool) -> list[Finding]:
     out = []
     stripped = line.strip()
@@ -562,12 +604,10 @@ def scan_line(rel: str, lineno: int, line: str, in_deps: bool) -> list[Finding]:
 
     # 2. 相依清單裡的 AI 套件
     if in_deps:
-        for mod in SDK_MODULES:
-            root = mod.split(".")[0]
-            if re.search(rf"(^|[\"'\s]){re.escape(root)}\b", stripped):
-                out.append(Finding(rel, lineno, "low", "kind_dep", {"mod": root},
-                                   "why_dep", stripped))
-                break
+        mod = _dep_ai_module(stripped)
+        if mod:
+            out.append(Finding(rel, lineno, "low", "kind_dep", {"mod": mod},
+                               "why_dep", stripped))
         return out
 
     # 3. 引入 AI SDK。先找這一行有沒有引入的動作，再看引的是不是 AI。
@@ -597,7 +637,8 @@ def scan_repo(root: Path) -> tuple[list[Finding], int]:
             continue
         if any(part in SKIP_DIRS for part in p.parts):
             continue
-        if p.suffix not in SCAN_SUFFIX and p.name not in DEP_FILES:
+        kind = _file_kind(p)
+        if kind is None:
             continue
         try:
             if p.stat().st_size > MAX_BYTES:
@@ -608,7 +649,7 @@ def scan_repo(root: Path) -> tuple[list[Finding], int]:
             continue
         scanned += 1
         rel = p.relative_to(root).as_posix()
-        in_deps = p.name in DEP_FILES
+        in_deps = kind == "deps"
         for i, line in enumerate(text.splitlines(), 1):
             findings.extend(scan_line(rel, i, line, in_deps))
     findings.sort(key=lambda f: (RANK[f.level], f.path, f.lineno))
