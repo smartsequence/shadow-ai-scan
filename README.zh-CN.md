@@ -99,7 +99,8 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 - Windows 打 `python` 跳出 Microsoft Store？改打 `py`；还不行就重装 Python，这次勾 PATH。
 - Mac 打 `python` 说找不到？Mac 只有 `python3`，这是正常的。
 - 字变乱码？多半是旧的「命令提示符」。最省事的是改用 **Windows 终端**（Windows 11 内置，开始键右键就有）；
-  不能换的话先打 `chcp 65001` 再跑一次。如果看到的是方框而不是乱码，那是字体没有那个字，换一个有中文的字体就好。
+  不能换的话先打 `chcp 65001` 再跑一次。如果看到的是方框而不是乱码，那是旧窗口的字体没有那些字——不用去调字体，Windows 终端会自动找系统里有的字体，换过去就没有这个问题。
+  Mac 的终端也会自动找。Linux 看到方框就装一次字体：`sudo apt install fonts-noto-cjk`。
 
 ⚠ 输出里会有密钥的片段。截图或贴给别人之前，先看一眼。
 

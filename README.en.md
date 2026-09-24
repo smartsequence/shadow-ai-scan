@@ -101,7 +101,8 @@ The three places people get stuck:
 - Windows: typing `python` opens the Microsoft Store? Use `py`; if that fails, reinstall Python and tick PATH this time.
 - Mac: `python` says command not found? Mac only has `python3`. That is normal.
 - Garbled non-Latin text? Almost always the old Command Prompt. Easiest fix: use **Windows Terminal** (built into Windows 11, right-click Start);
-  if you cannot, run `chcp 65001` first. Boxes instead of garbage means the font has no glyphs for that script — pick a font that does.
+  if you cannot, run `chcp 65001` first. Boxes instead of garbage mean the old window's font has no glyphs for that script. Do not go hunting in font menus: Windows Terminal
+  picks a system font that has them automatically, so switching to it is the whole fix. macOS Terminal does the same. On Linux, install the fonts once: `sudo apt install fonts-noto-cjk`.
 
 ⚠ The output contains fragments of real keys. Look before you screenshot it or paste it anywhere.
 

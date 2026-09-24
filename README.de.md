@@ -101,7 +101,8 @@ Die drei häufigsten Stolpersteine:
 - Windows: `python` öffnet den Microsoft Store? `py` verwenden; geht das nicht, Python neu installieren und diesmal PATH ankreuzen.
 - Mac: `python` meldet command not found? Der Mac hat nur `python3`. Das ist normal.
 - Zeichensalat? Fast immer die alte Eingabeaufforderung. Am einfachsten: **Windows Terminal** benutzen (in Windows 11 enthalten, Rechtsklick auf Start);
-  geht das nicht, vorher `chcp 65001` ausführen. Kästchen statt Zeichensalat heißt nur: die Schrift hat diese Zeichen nicht — eine andere wählen.
+  geht das nicht, vorher `chcp 65001` ausführen. Kästchen statt Zeichensalat heißt nur: die Schrift des alten Fensters hat diese Zeichen nicht. Nicht in Schriftmenüs suchen — Windows Terminal
+  nimmt automatisch eine Systemschrift, die sie hat; der Wechsel dorthin ist die ganze Lösung. Das Terminal von macOS ebenso. Unter Linux die Schriften einmal installieren: `sudo apt install fonts-noto-cjk`.
 
 ⚠ Die Ausgabe enthält Bruchstücke echter Schlüssel. Erst hinsehen, dann Screenshot oder Copy-Paste.
 
