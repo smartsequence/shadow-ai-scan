@@ -34,14 +34,14 @@ Python がまだない？下の〈Python がまだない場合〉へ。
 一覧です。各件にファイル、行番号、その行の中身、そして「これが何を意味するか」の一文。
 一覧は 3 段階に分かれます。見た目のためではなく、動く人が 3 種類いるからです。
 
-**高：鍵がコードに書かれている。** ファイルを開いた人が全員、鍵を手にします。今日中に差し替え、議論の余地なし。
+**高リスク：鍵がコードに書かれている。** ファイルを開いた人が全員、鍵を手にします。今日中に差し替え、議論の余地なし。
 **セキュリティ**へ。
 
-**中：コードが確実に社外の AI へデータを送っている。** 悪いとは限りませんが、3 つ聞くべきことがあります。
+**中リスク：コードが確実に社外の AI へデータを送っている。** 悪いとは限りませんが、3 つ聞くべきことがあります。
 その AI 企業と契約はあるか、法務はデータ処理条項を読んだか、送っている中に顧客の個人情報はないか。
-**法務と調達**へ。
+**法務・調達**へ。
 
-**低：パッケージが入っている、またはコードに痕跡はあるが動いていない。** 急ぎではありませんが、誰かに聞く必要があります。
+**低リスク：パッケージが入っている、またはコードに痕跡はあるが動いていない。** 急ぎではありませんが、誰かに聞く必要があります。
 誰が入れたか、何のためか、まだ使っているか。**エンジニアリング責任者**へ。
 
 急ぎの等級だけ先に見るなら：
@@ -91,7 +91,7 @@ Python 本体だけ。パッケージは不要です。
 |---|---|---|---|
 | Windows | スタートを右クリック →「ターミナル」または「PowerShell」 | `py --version` | [python.org](https://www.python.org/downloads/) から入手。インストール時に Add python.exe to PATH に**チェック** |
 | macOS | Command + スペースで「ターミナル」を検索 | `python3 --version` | `brew install python`、または python.org |
-| Linux | 普段のターミナル | `python3 --version` | たいてい入っています。なければ `sudo apt install python3` |
+| Linux | 普段のターミナル | `python3 --version` | たいてい入っています。なければ `sudo apt install python3`（Ubuntu／Debian。他のディストリビューションは各自のパッケージ管理で） |
 
 3.9 以上、2021 年以降のものなら大丈夫です。
 
@@ -99,9 +99,12 @@ Python 本体だけ。パッケージは不要です。
 
 - Windows で `python` と打つと Microsoft Store が開く？`py` にしてください。駄目なら Python を入れ直し、今度は PATH にチェック。
 - Mac で `python` が見つからない？Mac には `python3` しかありません。正常です。
-- 文字化けする？たいてい旧「コマンドプロンプト」です。一番手っ取り早いのは **Windows ターミナル**（Windows 11 標準、スタートを右クリック）に替えること。
-  替えられなければ先に `chcp 65001` を打ってください。化けるのではなく□が出るなら、旧ウィンドウのフォントにその文字がないだけです。フォント設定を探す必要はありません。Windows ターミナルは
-  システムにあるフォントから自動で探すので、そちらに替えれば終わりです。macOS のターミナルも同じ。Linux で□が出るならフォントを一度入れてください：`sudo apt install fonts-noto-cjk`。
+- 文字化けする？ウィンドウで直接走らせる分には化けません——ツール自身が UTF-8 で出力します。化けるのは、結果をファイルに保存したり
+  別のプログラムに渡してから見たときです。その場合は Windows で先に `chcp 65001` を打ってください。今のウィンドウを UTF-8 に切り替える命令で、
+  65001 は Windows が UTF-8 に付けている番号です。Windows にしかなく、macOS と Linux には不要です。
+- 化けるのではなく□が出る？旧ウィンドウのフォントにその文字がないだけです。フォント設定を探さず、**Windows ターミナル**に替えてください。
+  システムにあるフォントから自動で探します（Windows 11 標準、スタートを右クリック。Windows 10 は Microsoft Store から「Windows Terminal」を入れる）。
+  macOS のターミナルも同じ。Linux はフォントを一度入れてください：`sudo apt install fonts-noto-cjk`（Ubuntu／Debian）。
 
 ⚠ 出力には鍵の断片が含まれます。スクリーンショットや貼り付けの前に、一度見てください。
 
@@ -113,10 +116,11 @@ Python 本体だけ。パッケージは不要です。
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 環境変数でも可
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 環境変数でも可（macOS / Linux）
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell ではこう書きます
 ```
 
-`--level` は 6 言語どの表記でも同じです：`--level high`、`--level 高`、`--level 높은 위험`。
+`--level` は 6 言語どの表記でも同じです：`--level high`、`--level 高`、`--level 높음`。
 
 **CI に組み込む**：今日きれいにしても 3 か月後にはまた生えてきます。CI に入れれば、AI 呼び出しを足した人のコミットはその場で通りません——
 四半期ごとの棚卸しよりずっと安い。「高」があれば終了コード 1、なければ 0。引数の誤りやパス不在は 2。
@@ -135,7 +139,7 @@ python3 shadow_ai_scan.py . --level high || echo "鍵の流出あり。このコ
 **拡張子かファイル名で決まります。下にないファイルは開かれもしません。**
 
 - コード：`.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- 設定ファイル：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（`.env.local`、`.env.production` を含む）、`Dockerfile`
+- 設定ファイル：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.example` `.env`／`.env.*`（`.env.local`、`.env.production` を含む）、`Dockerfile`／`Containerfile`
 - 依存リスト：`requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md` は意図的に対象外です。ドキュメントに `api.openai.com` が出てくるのは普通のことで、ノイズだらけになります。2 MB 超は飛ばします。

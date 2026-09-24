@@ -38,7 +38,7 @@ py shadow_ai_scan.py C:\path\to\your\repo         # Windows（py 不行就打 py
 交给**安全团队**。
 
 **中风险：代码确定在把数据送到外面的 AI。** 不一定是坏事，但要问三个问题：这家 AI 公司有签约吗？
-法务看过他们的数据处理条款吗？送出去的有没有客户个人信息？交给**法务和采购**。
+法务看过他们的数据处理条款吗？送出去的有没有客户个人信息？交给**法务与采购**。
 
 **低风险：装了包，或代码里有痕迹但没在跑。** 不急，但要找人问清楚：谁装的、拿来做什么、
 还在不在用。交给**工程主管**。
@@ -90,7 +90,7 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 |---|---|---|---|
 | Windows | 开始键右键 →「终端」或「PowerShell」 | `py --version` | 到 [python.org](https://www.python.org/downloads/) 下载，安装时**记得勾** Add python.exe to PATH |
 | macOS | Command + 空格，搜索「终端」 | `python3 --version` | `brew install python`，或一样到 python.org |
-| Linux | 你平常用的终端 | `python3 --version` | 多半已内置；没有就 `sudo apt install python3` |
+| Linux | 你平常用的终端 | `python3 --version` | 多半已内置；没有就 `sudo apt install python3`（Ubuntu／Debian；其他发行版用你的包管理器） |
 
 版本 3.9 以上就行，2021 年以后的都可以。
 
@@ -98,9 +98,12 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 - Windows 打 `python` 跳出 Microsoft Store？改打 `py`；还不行就重装 Python，这次勾 PATH。
 - Mac 打 `python` 说找不到？Mac 只有 `python3`，这是正常的。
-- 字变乱码？多半是旧的「命令提示符」。最省事的是改用 **Windows 终端**（Windows 11 内置，开始键右键就有）；
-  不能换的话先打 `chcp 65001` 再跑一次。如果看到的是方框而不是乱码，那是旧窗口的字体没有那些字——不用去调字体，Windows 终端会自动找系统里有的字体，换过去就没有这个问题。
-  Mac 的终端也会自动找。Linux 看到方框就装一次字体：`sudo apt install fonts-noto-cjk`。
+- 字变乱码？直接在窗口里跑不会乱——工具自己用 UTF-8 输出。会乱的是把结果存成文件、或接给别的程序再看。
+  那时在 Windows 先打 `chcp 65001` 再跑一次：这个命令把当前这个窗口切成 UTF-8，65001 就是 UTF-8 的编号。
+  它只有 Windows 有，Mac 和 Linux 不需要。
+- 看到的是方框不是乱码？那是旧窗口的字体没有那些字。不用调字体，改用 **Windows 终端**就好，它会自动找系统里有的字体
+  （Windows 11 内置，开始键右键就有；Windows 10 到 Microsoft Store 装「Windows Terminal」）。
+  Mac 的终端也会自动找。Linux 装一次字体：`sudo apt install fonts-noto-cjk`（Ubuntu／Debian）。
 
 ⚠ 输出里会有密钥的片段。截图或贴给别人之前，先看一眼。
 
@@ -112,10 +115,11 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 用环境变量也行
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 用环境变量也行（macOS / Linux）
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell 的写法
 ```
 
-`--level` 六种语言的字都认：`--level 高`、`--level high`、`--level 높은 위험` 一样。
+`--level` 六种语言的字都认：`--level 高`、`--level high`、`--level 높음` 一样。
 
 **接进 CI**：今天扫干净，三个月后又会长出来。接进 CI，谁新增了 AI 调用，那次提交就过不了——
 比三个月盘点一次便宜得多。有任何高风险就返回退出码 1，其余 0；参数错或路径不存在返回 2。
@@ -134,7 +138,7 @@ python3 shadow_ai_scan.py . --level high || echo "有密钥泄露，这次提交
 **看扩展名或文件名决定开不开；不在下面的文件完全不会被打开。**
 
 - 代码：`.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- 配置文件：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
+- 配置文件：`.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.example` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`／`Containerfile`
 - 依赖清单：`requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md` 刻意不扫：文档里提到 `api.openai.com` 太平常，扫了只会满江红。单个文件超过 2 MB 跳过；

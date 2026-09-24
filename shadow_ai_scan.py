@@ -401,6 +401,8 @@ def level_aliases() -> dict[str, str]:
         "高": "high", "中": "mid", "低": "low",
         "h": "high", "m": "mid", "l": "low",
         "medium": "mid", "hoch": "high", "mittel": "mid", "gering": "low",
+        # 韓文的等級名「높은 위험」中間有空白，在 shell 裡得加引號；給單字版免得讀者踩到
+        "높음": "high", "중간": "mid", "낮음": "low",
     })
     return table
 

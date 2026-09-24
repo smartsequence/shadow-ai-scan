@@ -34,14 +34,14 @@ Python 이 없다면? 아래 〈Python 이 아직 없다면〉으로.
 목록입니다. 각 건에 파일, 줄 번호, 그 줄의 내용, 그리고 "이것이 무슨 뜻인지" 한 문장.
 목록은 세 등급으로 나뉩니다. 보기 좋으라고가 아니라, 움직여야 할 사람이 셋이기 때문입니다.
 
-**높음: 키가 코드에 적혀 있음.** 파일을 여는 사람마다 키를 손에 넣습니다. 오늘 교체, 논의할 것 없음.
+**높은 위험: 키가 코드에 적혀 있음.** 파일을 여는 사람마다 키를 손에 넣습니다. 오늘 교체, 논의할 것 없음.
 **보안팀**에게.
 
-**중간: 코드가 외부 AI 로 데이터를 확실히 보냄.** 꼭 나쁜 건 아니지만 세 가지를 물어야 합니다.
+**중간 위험: 코드가 외부 AI 로 데이터를 확실히 보냄.** 꼭 나쁜 건 아니지만 세 가지를 물어야 합니다.
 그 AI 회사와 계약이 있는가, 법무가 데이터 처리 조항을 읽었는가, 보내는 것에 고객 개인정보가 있는가.
-**법무와 구매**에게.
+**법무·구매**에게.
 
-**낮음: 패키지가 깔려 있거나, 코드에 흔적은 있는데 돌지 않음.** 급하진 않지만 누군가에게 물어야 합니다.
+**낮은 위험: 패키지가 깔려 있거나, 코드에 흔적은 있는데 돌지 않음.** 급하진 않지만 누군가에게 물어야 합니다.
 누가 깔았는지, 무엇에 쓰려고, 아직 쓰는지. **엔지니어링 책임자**에게.
 
 급한 등급만 먼저 보려면:
@@ -91,7 +91,7 @@ Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
 |---|---|---|---|
 | Windows | 시작 버튼 우클릭 → "터미널" 또는 "PowerShell" | `py --version` | [python.org](https://www.python.org/downloads/) 에서 받고, 설치 때 Add python.exe to PATH 를 **체크** |
 | macOS | Command + 스페이스로 "터미널" 검색 | `python3 --version` | `brew install python` 또는 python.org |
-| Linux | 평소 쓰는 터미널 | `python3 --version` | 보통 이미 있음. 없으면 `sudo apt install python3` |
+| Linux | 평소 쓰는 터미널 | `python3 --version` | 보통 이미 있음. 없으면 `sudo apt install python3` (Ubuntu/Debian; 다른 배포판은 자체 패키지 관리자로) |
 
 3.9 이상이면 됩니다. 2021년 이후 버전이면 다 됩니다.
 
@@ -99,9 +99,12 @@ Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
 
 - Windows 에서 `python` 을 치면 Microsoft Store 가 열린다? `py` 로 치세요. 그래도 안 되면 Python 을 다시 설치하고 이번엔 PATH 를 체크.
 - Mac 에서 `python` 을 못 찾는다고 한다? Mac 에는 `python3` 만 있습니다. 정상입니다.
-- 글자가 깨진다? 대개 옛 명령 프롬프트입니다. 가장 쉬운 건 **Windows 터미널**(Windows 11 기본, 시작 버튼 우클릭)로 바꾸는 것;
-  못 바꾸면 먼저 `chcp 65001` 을 치세요. 깨진 글자가 아니라 네모 상자가 보이면 옛 창의 글꼴에 그 글자가 없는 것뿐입니다. 글꼴 메뉴를 뒤질 필요 없습니다. Windows 터미널은
-  시스템에 있는 글꼴을 자동으로 찾아 쓰니, 그쪽으로 바꾸면 끝입니다. macOS 터미널도 마찬가지. Linux 에서 상자가 보이면 글꼴을 한 번 설치하세요: `sudo apt install fonts-noto-cjk`.
+- 글자가 깨진다? 창에서 바로 돌리면 안 깨집니다——도구가 스스로 UTF-8 로 출력합니다. 깨지는 건 결과를 파일로 저장하거나
+  다른 프로그램에 넘겨서 볼 때입니다. 그럴 땐 Windows 에서 먼저 `chcp 65001` 을 치세요. 지금 창을 UTF-8 로 바꾸는 명령이고,
+  65001 은 Windows 가 UTF-8 에 붙인 번호입니다. Windows 에만 있고 macOS 와 Linux 에는 필요 없습니다.
+- 깨진 글자가 아니라 네모 상자가 보인다? 옛 창의 글꼴에 그 글자가 없는 것뿐입니다. 글꼴 메뉴를 뒤지지 말고 **Windows 터미널**로 바꾸세요.
+  시스템에 있는 글꼴을 자동으로 찾아 씁니다 (Windows 11 기본, 시작 버튼 우클릭; Windows 10 은 Microsoft Store 에서 "Windows Terminal" 설치).
+  macOS 터미널도 마찬가지. Linux 는 글꼴을 한 번 설치하세요: `sudo apt install fonts-noto-cjk` (Ubuntu/Debian).
 
 ⚠ 출력에는 키의 일부가 포함됩니다. 캡처하거나 어디에 붙여넣기 전에 한 번 보세요.
 
@@ -113,10 +116,12 @@ Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 환경 변수도 됩니다
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 환경 변수도 됩니다 (macOS / Linux)
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell 에서는 이렇게
 ```
 
-`--level` 은 여섯 언어 표기를 다 받습니다: `--level high`, `--level 高`, `--level 높은 위험` 모두 같습니다.
+`--level` 은 여섯 언어 표기를 다 받습니다: `--level high`, `--level 高`, `--level 높음` 모두 같습니다.
+(`높은 위험` 처럼 띄어쓰기가 있는 표기를 쓰려면 `--level "높은 위험"` 으로 따옴표를 감싸야 합니다. 그래서 `높음`／`중간`／`낮음` 도 받습니다.)
 
 **CI 에 연결**: 오늘 깨끗해도 석 달 뒤면 다시 자랍니다. CI 에 넣으면 AI 호출을 추가한 사람의 커밋이 그 자리에서 막힙니다——
 분기마다 전수 점검하는 것보다 훨씬 쌉니다. '높음'이 있으면 종료 코드 1, 없으면 0. 인자 오류나 경로 없음은 2.
@@ -135,7 +140,7 @@ python3 shadow_ai_scan.py . --level high || echo "키 유출 발견. 이 커밋�
 **확장자나 파일 이름으로 정해집니다. 아래에 없는 파일은 열리지도 않습니다.**
 
 - 코드: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- 설정 파일: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`(`.env.local`, `.env.production` 포함), `Dockerfile`
+- 설정 파일: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.example` `.env`／`.env.*`(`.env.local`, `.env.production` 포함), `Dockerfile`／`Containerfile`
 - 의존 목록: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md` 는 일부러 뺐습니다. 문서에 `api.openai.com` 이 나오는 건 흔한 일이라 잡음만 쌓입니다. 2 MB 넘는 파일은 건너뜁니다.

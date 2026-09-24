@@ -34,14 +34,14 @@ No Python yet? Skip down to "No Python yet".
 A list. Every item has the file, the line number, what that line looks like, and one sentence on what it means.
 The list comes in three levels — not for decoration, but because three different people have to act.
 
-**High: a key written into the code.** Whoever opens the file has the key. Rotate it today, no discussion.
+**High risk: a key written into the code.** Whoever opens the file has the key. Rotate it today, no discussion.
 Hand it to **Security**.
 
-**Medium: code that definitely sends data to an outside AI.** Not necessarily bad, but three questions:
+**Medium risk: code that definitely sends data to an outside AI.** Not necessarily bad, but three questions:
 is there a contract with that AI company? Has Legal read their data-processing terms? Is customer data in what gets sent?
 Hand it to **Legal and Procurement**.
 
-**Low: a package installed, or a trace in the code that is not running.** Not urgent, but somebody has to be asked:
+**Low risk: a package installed, or a trace in the code that is not running.** Not urgent, but somebody has to be asked:
 who installed it, what for, is it still in use. Hand it to the **Engineering lead**.
 
 Only the urgent level for now:
@@ -92,7 +92,7 @@ Only Python itself. No packages.
 |---|---|---|---|
 | Windows | Right-click Start → "Terminal" or "PowerShell" | `py --version` | Get it from [python.org](https://www.python.org/downloads/); **tick** Add python.exe to PATH during setup |
 | macOS | Command + Space, search "Terminal" | `python3 --version` | `brew install python`, or python.org |
-| Linux | Your usual terminal | `python3 --version` | Usually already there; otherwise `sudo apt install python3` |
+| Linux | Your usual terminal | `python3 --version` | Usually already there; otherwise `sudo apt install python3` (Ubuntu/Debian; other distributions use their own package manager) |
 
 3.9 or newer, so anything from 2021 onward.
 
@@ -100,9 +100,12 @@ The three places people get stuck:
 
 - Windows: typing `python` opens the Microsoft Store? Use `py`; if that fails, reinstall Python and tick PATH this time.
 - Mac: `python` says command not found? Mac only has `python3`. That is normal.
-- Garbled non-Latin text? Almost always the old Command Prompt. Easiest fix: use **Windows Terminal** (built into Windows 11, right-click Start);
-  if you cannot, run `chcp 65001` first. Boxes instead of garbage mean the old window's font has no glyphs for that script. Do not go hunting in font menus: Windows Terminal
-  picks a system font that has them automatically, so switching to it is the whole fix. macOS Terminal does the same. On Linux, install the fonts once: `sudo apt install fonts-noto-cjk`.
+- Garbled non-Latin text? Running it straight in the window does not garble — the tool writes UTF-8 itself. It garbles when you save the output to a file
+  or pipe it into another program and read it there. On Windows, run `chcp 65001` first in that case: it switches the current window to UTF-8
+  (65001 is simply the number Windows gives UTF-8). Windows only; macOS and Linux do not need it.
+- Boxes instead of garbage? The old window's font has no glyphs for that script. Do not go hunting in font menus: switch to **Windows Terminal**,
+  which picks a system font that has them automatically (built into Windows 11, right-click Start; on Windows 10 install "Windows Terminal" from the Microsoft Store).
+  macOS Terminal does the same. On Linux, install the fonts once: `sudo apt install fonts-noto-cjk` (Ubuntu/Debian).
 
 ⚠ The output contains fragments of real keys. Look before you screenshot it or paste it anywhere.
 
@@ -114,10 +117,11 @@ The three places people get stuck:
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # the environment variable works too
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # the environment variable works too (macOS / Linux)
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # the same on Windows PowerShell
 ```
 
-`--level` accepts the word in any of the six languages: `--level high`, `--level 高`, `--level 높은 위험` are the same.
+`--level` accepts the word in any of the six languages: `--level high`, `--level 高`, `--level 높음` are the same.
 
 **Wire it into CI**: clean today, grown back in three months. In CI, whoever adds an AI call fails that commit —
 far cheaper than an audit every quarter. Exit code 1 if anything is High, 0 otherwise; 2 for a bad argument or a missing path.
@@ -136,7 +140,7 @@ just add it. They sit there so you can edit them.
 **The extension or file name decides; anything not listed below is never opened.**
 
 - Code: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- Config: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env` / `.env.*` (including `.env.local`, `.env.production`), `Dockerfile`
+- Config: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.example` `.env` / `.env.*` (including `.env.local`, `.env.production`), `Dockerfile` / `Containerfile`
 - Dependency lists: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md` is skipped on purpose: docs mention `api.openai.com` all the time. Files over 2 MB are skipped;

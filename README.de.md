@@ -34,14 +34,14 @@ Noch kein Python? Weiter unten bei „Noch kein Python“.
 Eine Liste. Jeder Eintrag hat Datei, Zeilennummer, die Zeile selbst und einen Satz dazu, was das bedeutet.
 Die Liste hat drei Stufen — nicht zur Zierde, sondern weil drei verschiedene Leute handeln müssen.
 
-**Hoch: ein Schlüssel steht im Code.** Wer die Datei öffnet, hat den Schlüssel. Heute austauschen, ohne Diskussion.
+**Hohes Risiko: ein Schlüssel steht im Code.** Wer die Datei öffnet, hat den Schlüssel. Heute austauschen, ohne Diskussion.
 An **Security**.
 
-**Mittel: Code sendet nachweislich Daten an eine externe KI.** Nicht zwingend schlimm, aber drei Fragen:
+**Mittleres Risiko: Code sendet nachweislich Daten an eine externe KI.** Nicht zwingend schlimm, aber drei Fragen:
 Gibt es einen Vertrag mit diesem KI-Anbieter? Hat die Rechtsabteilung dessen Datenverarbeitungsbedingungen gelesen?
 Sind Kundendaten in dem, was gesendet wird? An **Recht und Einkauf**.
 
-**Gering: ein Paket ist installiert, oder eine Spur im Code läuft nicht.** Nicht dringend, aber jemand muss gefragt werden:
+**Geringes Risiko: ein Paket ist installiert, oder eine Spur im Code läuft nicht.** Nicht dringend, aber jemand muss gefragt werden:
 wer hat es installiert, wofür, wird es noch benutzt. An den **Engineering-Lead**.
 
 Erst einmal nur die dringende Stufe:
@@ -92,7 +92,7 @@ Nur Python selbst. Keine Pakete.
 |---|---|---|---|
 | Windows | Rechtsklick auf Start → „Terminal“ oder „PowerShell“ | `py --version` | Von [python.org](https://www.python.org/downloads/) holen und bei der Installation Add python.exe to PATH **ankreuzen** |
 | macOS | Command + Leertaste, „Terminal“ suchen | `python3 --version` | `brew install python`, oder python.org |
-| Linux | Ihr übliches Terminal | `python3 --version` | Meist schon vorhanden, sonst `sudo apt install python3` |
+| Linux | Ihr übliches Terminal | `python3 --version` | Meist schon vorhanden, sonst `sudo apt install python3` (Ubuntu/Debian; andere Distributionen über ihre eigene Paketverwaltung) |
 
 3.9 oder neuer, also alles ab 2021.
 
@@ -100,9 +100,12 @@ Die drei häufigsten Stolpersteine:
 
 - Windows: `python` öffnet den Microsoft Store? `py` verwenden; geht das nicht, Python neu installieren und diesmal PATH ankreuzen.
 - Mac: `python` meldet command not found? Der Mac hat nur `python3`. Das ist normal.
-- Zeichensalat? Fast immer die alte Eingabeaufforderung. Am einfachsten: **Windows Terminal** benutzen (in Windows 11 enthalten, Rechtsklick auf Start);
-  geht das nicht, vorher `chcp 65001` ausführen. Kästchen statt Zeichensalat heißt nur: die Schrift des alten Fensters hat diese Zeichen nicht. Nicht in Schriftmenüs suchen — Windows Terminal
-  nimmt automatisch eine Systemschrift, die sie hat; der Wechsel dorthin ist die ganze Lösung. Das Terminal von macOS ebenso. Unter Linux die Schriften einmal installieren: `sudo apt install fonts-noto-cjk`.
+- Zeichensalat? Direkt im Fenster passiert das nicht — das Werkzeug schreibt selbst UTF-8. Es passiert, wenn Sie die Ausgabe in eine Datei speichern
+  oder an ein anderes Programm weiterreichen und dort lesen. Dann unter Windows vorher `chcp 65001` ausführen: das stellt das aktuelle Fenster auf UTF-8 um,
+  65001 ist schlicht die Nummer, die Windows für UTF-8 vergibt. Nur Windows; macOS und Linux brauchen das nicht.
+- Kästchen statt Zeichensalat? Die Schrift des alten Fensters hat diese Zeichen nicht. Nicht in Schriftmenüs suchen — zu **Windows Terminal** wechseln,
+  das nimmt automatisch eine Systemschrift, die sie hat (in Windows 11 enthalten, Rechtsklick auf Start; unter Windows 10 „Windows Terminal“ aus dem Microsoft Store installieren).
+  Das Terminal von macOS ebenso. Unter Linux die Schriften einmal installieren: `sudo apt install fonts-noto-cjk` (Ubuntu/Debian).
 
 ⚠ Die Ausgabe enthält Bruchstücke echter Schlüssel. Erst hinsehen, dann Screenshot oder Copy-Paste.
 
@@ -114,10 +117,11 @@ Die drei häufigsten Stolpersteine:
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # geht auch als Umgebungsvariable
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # geht auch als Umgebungsvariable (macOS / Linux)
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # so in Windows PowerShell
 ```
 
-`--level` akzeptiert das Wort in allen sechs Sprachen: `--level high`, `--level 高`, `--level 높은 위험` sind dasselbe.
+`--level` akzeptiert das Wort in allen sechs Sprachen: `--level high`, `--level 高`, `--level 높음` sind dasselbe; auf Deutsch auch `hoch`, `mittel`, `gering`.
 
 **In die CI hängen**: heute sauber, in drei Monaten wieder nachgewachsen. In der CI fällt der Commit durch, der einen KI-Aufruf hinzufügt —
 deutlich billiger als eine Inventur pro Quartal. Exit-Code 1, sobald etwas auf Hoch steht, sonst 0; 2 bei falschem Argument oder fehlendem Pfad.
@@ -136,7 +140,7 @@ einfach ergänzen. Sie stehen dort, damit Sie sie ändern.
 **Endung oder Dateiname entscheiden; alles, was unten nicht steht, wird nie geöffnet.**
 
 - Code: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- Konfiguration: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env` / `.env.*` (auch `.env.local`, `.env.production`), `Dockerfile`
+- Konfiguration: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.example` `.env` / `.env.*` (auch `.env.local`, `.env.production`), `Dockerfile` / `Containerfile`
 - Abhängigkeitslisten: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md` wird absichtlich ausgelassen: in Dokumentation steht `api.openai.com` ständig. Dateien über 2 MB werden übersprungen;
