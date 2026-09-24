@@ -100,7 +100,8 @@ Die drei häufigsten Stolpersteine:
 
 - Windows: `python` öffnet den Microsoft Store? `py` verwenden; geht das nicht, Python neu installieren und diesmal PATH ankreuzen.
 - Mac: `python` meldet command not found? Der Mac hat nur `python3`. Das ist normal.
-- Zeichensalat? Sie sind in der alten Eingabeaufforderung. Erst `chcp 65001` ausführen, oder Windows Terminal benutzen.
+- Zeichensalat? Fast immer die alte Eingabeaufforderung. Am einfachsten: **Windows Terminal** benutzen (in Windows 11 enthalten, Rechtsklick auf Start);
+  geht das nicht, vorher `chcp 65001` ausführen. Kästchen statt Zeichensalat heißt nur: die Schrift hat diese Zeichen nicht — eine andere wählen.
 
 ⚠ Die Ausgabe enthält Bruchstücke echter Schlüssel. Erst hinsehen, dann Screenshot oder Copy-Paste.
 

@@ -100,7 +100,8 @@ The three places people get stuck:
 
 - Windows: typing `python` opens the Microsoft Store? Use `py`; if that fails, reinstall Python and tick PATH this time.
 - Mac: `python` says command not found? Mac only has `python3`. That is normal.
-- Garbled non-Latin text? You are in the old Command Prompt. Run `chcp 65001` first, or use Windows Terminal.
+- Garbled non-Latin text? Almost always the old Command Prompt. Easiest fix: use **Windows Terminal** (built into Windows 11, right-click Start);
+  if you cannot, run `chcp 65001` first. Boxes instead of garbage means the font has no glyphs for that script — pick a font that does.
 
 ⚠ The output contains fragments of real keys. Look before you screenshot it or paste it anywhere.
 
