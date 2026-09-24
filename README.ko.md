@@ -1,151 +1,149 @@
 # shadow-ai-scan
 
-저장소 하나를 스캔해 AI 서비스를 호출하는 줄을 모두 찾아내고, 각 건에 위험 등급과 담당 부서를 붙여 줍니다.
+회사 안에서 AI 를 호출하는 곳이 몇 군데입니까? 숫자가 떠올랐나요——기억해 두세요.
 
-Python 파일 하나, 표준 라이브러리만 사용합니다. 설치 불필요, 네트워크 연결 없음, 밖으로 보내는 것도 없습니다.
+이 도구는 저장소 하나를 처음부터 끝까지 읽고, AI 를 쓰는 줄을 전부 나열한 뒤, 각각이 얼마나 급하고
+누구에게 넘겨야 하는지 알려 줍니다. 처음 돌려 본 사람의 가장 흔한 반응은 "숫자가 안 맞는다"입니다.
 
-**인터페이스 6개 언어**: 한국어, 繁體中文, English, 日本語, 简体中文, Deutsch.
+Python 파일 하나뿐입니다. 설치할 것 없고, 네트워크도 안 쓰고, 아무것도 밖으로 보내지 않습니다. 인터페이스는 6개 언어.
 
-다른 언어: [繁體中文](README.md) · [English](README.en.md) ·
-[日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Deutsch](README.de.md)
+다른 언어: [繁體中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) ·
+[简体中文](README.zh-CN.md) · [Deutsch](README.de.md)
 
 ---
 
-## 30초면 됩니다 (Python이 이미 있다면)
+## 일단 한 번, 30초
 
-파일은 하나뿐입니다. `shadow_ai_scan.py` 를 열고 오른쪽 위 **Raw** 에서 저장하세요. 어디에 둬도 됩니다, 바탕화면이면 충분합니다. 저장소를 통째로 clone 해도 같습니다.
-
-터미널을 열고 실행합니다.
+1. 위의 `shadow_ai_scan.py` 를 열고 오른쪽 위 **Raw** 를 눌러 저장하세요. 바탕화면이면 됩니다.
+2. 터미널을 엽니다 (Windows 는 "터미널" 또는 "PowerShell", Mac 은 "터미널").
+3. 이 한 줄을 치세요. 끝은 내 저장소 경로로:
 
 ```bash
-# macOS / Linux
-python3 shadow_ai_scan.py /path/to/your/repo
-
-# Windows (`py` 가 안 되면 `python`)
-py shadow_ai_scan.py C:\path\to\your\repo
+python3 shadow_ai_scan.py /path/to/your/repo      # macOS / Linux
+py shadow_ai_scan.py C:\path\to\your\repo         # Windows (py 가 안 되면 python)
 ```
 
-**저장소 경로를 모르겠다면**, 그 폴더를 터미널 창에 끌어다 놓으면 경로가 저절로 입력됩니다.
+경로를 모르겠다면? 그 폴더를 **터미널 창에 끌어다 놓으면** 저절로 입력됩니다.
 
-급한 등급만 보려면:
+Python 이 없다면? 아래 〈Python 이 아직 없다면〉으로.
+
+---
+
+## 무엇이 나오는가
+
+목록입니다. 각 건에 파일, 줄 번호, 그 줄의 내용, 그리고 "이것이 무슨 뜻인지" 한 문장.
+목록은 세 등급으로 나뉩니다. 보기 좋으라고가 아니라, 움직여야 할 사람이 셋이기 때문입니다.
+
+**높음: 키가 코드에 적혀 있음.** 파일을 여는 사람마다 키를 손에 넣습니다. 오늘 교체, 논의할 것 없음.
+**보안팀**에게.
+
+**중간: 코드가 외부 AI 로 데이터를 확실히 보냄.** 꼭 나쁜 건 아니지만 세 가지를 물어야 합니다.
+그 AI 회사와 계약이 있는가, 법무가 데이터 처리 조항을 읽었는가, 보내는 것에 고객 개인정보가 있는가.
+**법무와 구매**에게.
+
+**낮음: 패키지가 깔려 있거나, 코드에 흔적은 있는데 돌지 않음.** 급하진 않지만 누군가에게 물어야 합니다.
+누가 깔았는지, 무엇에 쓰려고, 아직 쓰는지. **엔지니어링 책임자**에게.
+
+급한 등급만 먼저 보려면:
 
 ```bash
 python3 shadow_ai_scan.py /path/to/your/repo --level high
 ```
 
-아래 예시는 모두 `python3` 로 씁니다. Windows 에서는 `py` 로 바꿔 주세요.
-
-## Python이 아직 없다면
-
-Python 본체 외에 설치할 것은 없습니다. 패키지도, 네트워크도 필요 없습니다.
-
-| 운영체제 | 어디에 입력하나 | 먼저 확인 | 없으면 |
-|---|---|---|---|
-| Windows | 시작 버튼 우클릭 → 터미널 또는 PowerShell | `py --version` | [python.org](https://www.python.org/downloads/) 에서 받고, 설치할 때 Add python.exe to PATH 를 **체크** |
-| macOS | Command + 스페이스로 터미널 검색 | `python3 --version` | `brew install python` 또는 python.org |
-| Linux | 평소 쓰는 터미널 | `python3 --version` | 보통 이미 있습니다. 없으면 `sudo apt install python3` 등 |
-
-버전은 3.9 이상 (2021년 이후 버전이면 됩니다).
-
-**가장 많이 막히는 세 가지**
-
-- Windows 에서 `python` 을 치면 Microsoft Store 가 열림: `py` 를 쓰거나, PATH 를 체크해 다시 설치하세요.
-- macOS 에서 `python` 을 못 찾는다고 함: macOS 에는 `python3` 만 있습니다. 정상입니다.
-- 옛 명령 프롬프트에서 글자가 깨짐: 먼저 `chcp 65001` 을 실행하거나 Windows 터미널을 쓰세요.
-
-⚠ 출력에는 키의 일부가 포함됩니다. 캡처하거나 붙여넣기 전에 한 번 확인하세요.
-
 ---
 
-## 무엇을 찾는가
+## 어떻게 찾는가
 
-단서는 셋입니다. 기계는 거짓말하지 않고, 실행된 것은 반드시 흔적을 남깁니다.
+사람에게 묻지 않습니다. 설문으로는 안 나옵니다——엔지니어는 자기 기준의 "AI"로 답하고,
+그의 눈에 그건 그냥 코딩이니까요. 보는 건 기계가 남긴 흔적, 세 곳:
 
-1. **코드** — `from openai import OpenAI`, `import anthropic` 같은 공식 SDK 참조.
-2. **설정 파일** — `api.openai.com` 같은 API 도메인. 코드는 얼마든지 깊이 감쌀 수 있지만 트래픽에는 출구가 필요합니다.
-3. **키** — 회사마다 키 접두사가 정해져 있습니다. `sk-ant-api03-`, `sk-proj-`, `AIza`.
+1. **코드의 참조.** AI 서비스를 쓰면 코드는 반드시 그 패키지를 참조합니다. 예를 들어 `from openai import OpenAI`. 숨길 수 없습니다.
+2. **설정 파일의 주소.** 코드는 얼마든지 깊이 감쌀 수 있지만 트래픽에는 출구가 필요하고, `api.openai.com` 같은 주소는 설정 파일에 남습니다.
+3. **키 자체.** 회사마다 키 접두사가 정해져 있습니다. OpenAI 는 `sk-proj-`, Anthropic 은 `sk-ant-`, Google 은 `AIza`.
+   이런 문자열이 있으면 누군가 쓰고 있고, 쓰는 방식에도 문제가 있다는 뜻입니다.
 
----
-
-## 세 등급으로 나누는 이유는 움직일 사람이 다르기 때문
-
-몇 건이든 전부 똑같이 중요해 보이면 어느 것도 중요하지 않게 됩니다. 그래서 각 건에 등급과 담당을 붙였습니다.
-
-| 등급 | 상황 | 담당 | 긴급도 |
-|---|---|---|---|
-| 높음 | 키가 코드나 설정 파일에 적혀 있음 | 보안팀 | 오늘 교체. 논의할 것 없음 |
-| 중간 | 코드가 외부 AI로 데이터를 확실히 보냄 | 법무·구매 | 계약은 있는가, 무엇을 보내는가 |
-| 낮음 | 패키지는 깔렸거나 흔적은 있으나 돌지 않음 | 엔지니어링 책임자 | 급하지 않지만 확인은 필요 |
-
-각 건마다 파일, 줄 번호, 해당 줄, 그리고 "이것이 무슨 뜻인지" 한 문장이 나옵니다. 그대로 배분할 수 있습니다.
-
----
-
-## 적용 범위: 실제로 어떤 언어를 보는가
-
-**확장자(또는 파일 이름)로 열지 말지가 정해집니다.** 아래에 없는 파일은 **열리지도 않습니다**.
-
-- 코드: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
-- 설정 파일: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`（含 `.env.local`、`.env.production`）、`Dockerfile`
-- 의존 목록: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
-
-그 밖의 것(`.md`, 이미지, 바이너리)은 검사하지 않습니다. `.md` 는 의도적입니다. 문서에 `api.openai.com` 이 나오는 건 흔한 일이라 검사하면 잡음만 쌓입니다.
-
-세 단서의 범위는 서로 다릅니다.
-
-| 단서 | 범위 |
-|---|---|
-| 키 패턴 | **언어와 무관**. 위의 모든 종류. 접두사는 네 가지뿐(Anthropic, OpenAI 신·구, Google) |
-| AI 도메인 | **언어와 무관**. 일곱 개 도메인 |
-| SDK 참조 | 다섯 개 키워드, **대소문자 무시**: `import` / `from` / `require` / `using` / `use`. Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart(`import`), C#/VB.NET(`using`), Rust·PHP(`use`) |
-| 의존 목록 | 위 목록 전부. 항상 낮은 위험("설치됐지만 쓰는지는 모름")으로 보고 |
-
-참조 줄과 의존 목록에서는 벤더 이름을 **부분 문자열**로 맞춥니다. 그래서 Rust 의 `async_openai`, Swift 의 `OpenAIKit`,
-C# 의 `Anthropic.SDK`, Maven 의 `openai-java` 도 잡힙니다. 나머지는 단어 단위 그대로입니다.
-
-두 가지 더. 2 MB 가 넘는 파일은 건너뜁니다. `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build` 에는 들어가지 않습니다.
-
-더 넓히는 건 쉽습니다. 파일 맨 위의 그 목록들이 설정의 전부이고, 고치라고 거기에 둔 것입니다.
+셋을 합치면 맨 위의 질문에 답할 수 있습니다.
 
 ---
 
 ## 이 도구가 보지 못하는 것
 
-이것은 키워드 대조이지 깊은 정적 분석이 아닙니다. 전체 실행이 끝날 때마다 다음 네 가지를 스스로 출력합니다.
+바로 말하겠습니다. 이건 키워드 대조지 깊은 분석이 아닙니다. 전체 실행이 끝날 때마다 못 보는 네 가지를 스스로 맨 아래에 출력합니다.
 
-1. **직접 감싼 AI 호출.** 코드에는 `from vendor.llm_client import ask` 라고만 적혀 있어 그 아래 서비스가 보이지 않습니다.
-2. **실행할 때 정해지는 패키지 이름.** 환경 변수나 설정에서 오면 import 줄에 비교할 문자열이 없습니다.
-3. **줄 끝 주석이나 여러 줄 문자열 안의 주석.** 줄 앞만 보기 때문에 잘못 판단합니다.
-4. **설치했다고 쓰는 것은 아닙니다.** 의존 목록은 설치 사실만 증명합니다.
+1. **직접 감싼 AI 호출.** 코드에는 `from vendor.llm_client import ask` 라고만 있고, 아래가 어느 서비스인지 보이지 않습니다.
+   예를 들어 누군가 2년 전에 내부 모듈을 만들고 퇴사해서, 지금은 그게 어디로 연결되는지 아무도 모르는 경우.
+2. **실행할 때 정해지는 패키지 이름.** 환경 변수나 설정에서 오면 import 줄에 대조할 것이 없습니다.
+3. **줄 끝 주석, 여러 줄 문자열 속 주석.** 줄 앞만 보기 때문에 틀립니다.
+4. **깔렸다고 쓰는 것은 아님.** 의존 목록은 설치 사실만 증명합니다.
 
-N군데를 찾았더라도 실제로는 더 많을 수 있습니다. **이 목록은 조사의 출발점이지 전부가 아닙니다.**
+그래서 열 개를 찾았어도 실제로는 더 있을 수 있습니다. **이 목록은 조사의 출발점이지 전부가 아닙니다.**
+저장소에 `vendor/`, `internal/` 같은 디렉터리가 있다면 거기는 사람이 열어 봐야 하는 곳입니다.
 
-1번과 2번은 게으름이 아니라 이 방식의 경계입니다. 꿰뚫어 보려면 파일을 넘나드는 데이터 흐름 분석이 필요하고, 그건 이미 하루 오후에 쓸 수 있는 도구가 아닙니다.
+앞의 둘은 게으름이 아닙니다. 꿰뚫어 보려면 파일을 넘나드는 데이터 흐름 분석이 필요하고, 그건 하루 오후에 쓸 수 있는 도구가 아닙니다.
 
 ---
 
-## CI에 연결하기
+## Python 이 아직 없다면
 
-'높음'이 하나라도 있으면 종료 코드 1, 없으면 0. 인자 오류나 경로 없음은 2입니다.
+Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
+
+| 운영체제 | 어디에 입력하나 | 먼저 확인 | 없으면 |
+|---|---|---|---|
+| Windows | 시작 버튼 우클릭 → "터미널" 또는 "PowerShell" | `py --version` | [python.org](https://www.python.org/downloads/) 에서 받고, 설치 때 Add python.exe to PATH 를 **체크** |
+| macOS | Command + 스페이스로 "터미널" 검색 | `python3 --version` | `brew install python` 또는 python.org |
+| Linux | 평소 쓰는 터미널 | `python3 --version` | 보통 이미 있음. 없으면 `sudo apt install python3` |
+
+3.9 이상이면 됩니다. 2021년 이후 버전이면 다 됩니다.
+
+가장 많이 막히는 세 곳:
+
+- Windows 에서 `python` 을 치면 Microsoft Store 가 열린다? `py` 로 치세요. 그래도 안 되면 Python 을 다시 설치하고 이번엔 PATH 를 체크.
+- Mac 에서 `python` 을 못 찾는다고 한다? Mac 에는 `python3` 만 있습니다. 정상입니다.
+- 글자가 깨진다? 옛 명령 프롬프트를 쓰고 있는 겁니다. 먼저 `chcp 65001` 을 치거나 Windows 터미널을 쓰세요.
+
+⚠ 출력에는 키의 일부가 포함됩니다. 캡처하거나 어디에 붙여넣기 전에 한 번 보세요.
+
+---
+
+## 조금 더
+
+**언어 바꾸기**: 繁體中文, English, 日本語, 한국어, 简体中文, Deutsch. 지정하지 않으면 OS 를 따르고, 판별하지 못하면 영어.
+
+```bash
+python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
+SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 환경 변수도 됩니다
+```
+
+`--level` 은 여섯 언어 표기를 다 받습니다: `--level high`, `--level 高`, `--level 높은 위험` 모두 같습니다.
+
+**CI 에 연결**: 오늘 깨끗해도 석 달 뒤면 다시 자랍니다. CI 에 넣으면 AI 호출을 추가한 사람의 커밋이 그 자리에서 막힙니다——
+분기마다 전수 점검하는 것보다 훨씬 쌉니다. '높음'이 있으면 종료 코드 1, 없으면 0. 인자 오류나 경로 없음은 2.
 
 ```bash
 python3 shadow_ai_scan.py . --level high || echo "키 유출 발견. 이 커밋은 막습니다"
 ```
 
-오늘 깨끗해도 석 달 뒤면 다시 자랍니다. CI에 넣는 편이 분기마다 전수 점검하는 것보다 훨씬 쌉니다.
+**고치기**: 파일 맨 위의 목록들이 설정의 전부입니다. AI 회사 하나, 도메인 하나, 확장자 하나 더하고 싶으면 적어 넣으면 됩니다.
+고치라고 거기 둔 것입니다.
 
 ---
 
-## 언어 바꾸기
+## 어떤 파일을 여는가 (범위를 확인하려는 분께)
 
-```bash
-python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
-SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 환경 변수로도 지정할 수 있습니다
-```
+**확장자나 파일 이름으로 정해집니다. 아래에 없는 파일은 열리지도 않습니다.**
 
-지정하지 않으면 OS 로캘을 따르고, 판별하지 못하면 영어로 나옵니다.
+- 코드: `.py` `.ipynb` `.js` `.ts` `.tsx` `.go` `.rb` `.java` `.cs` `.vb` `.php` `.rs` `.kt` `.kts` `.swift` `.scala` `.dart` `.c` `.cc` `.cpp` `.h` `.hpp` `.sh` `.ps1`
+- 설정 파일: `.yaml` `.yml` `.json` `.toml` `.ini` `.txt` `.config` `.xml` `.properties` `.gradle` `.tf` `.tfvars` `.env`／`.env.*`(`.env.local`, `.env.production` 포함), `Dockerfile`
+- 의존 목록: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
-`--level` 은 여섯 언어 표기를 모두 받습니다. `--level high`, `--level 높은 위험`, `--level 高` 모두 동작합니다.
+`.md` 는 일부러 뺐습니다. 문서에 `api.openai.com` 이 나오는 건 흔한 일이라 잡음만 쌓입니다. 2 MB 넘는 파일은 건너뜁니다.
+`.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build` 에는 들어가지 않습니다.
+
+세 단서의 범위는 다릅니다. 키 패턴과 AI 도메인은 **언어와 무관**하게 위의 모든 파일에 적용됩니다
+(키는 Anthropic, OpenAI 신·구, Google 네 접두사뿐. 도메인은 일곱 개).
+SDK 참조는 `import` / `from` / `require` / `using` / `use` 다섯 키워드를 대소문자 무시로 보므로 Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust, PHP 를 다룹니다.
+참조 줄과 의존 목록에서는 벤더 이름을 부분 문자열로 맞춰 Rust 의 `async_openai`, Swift 의 `OpenAIKit`, C# 의 `Anthropic.SDK` 도 잡힙니다. 나머지는 단어 단위.
+의존 목록은 항상 낮은 위험으로 보고합니다.
 
 ---
 
@@ -157,8 +155,10 @@ MIT. 수정하든, 사내에서 쓰든, 자체 도구에 넣든 모두 자유입
 
 ## 이 도구의 출처
 
-어느 한 편의 영상에 딸린 도구입니다. 그 편의 주제는 회사 안에 등록되지 않은 AI 호출이 실제로 몇 건이나 있는지, 그리고 왜 금지 공지로는 막히지 않는지입니다.
+어느 한 편의 영상에 딸린 도구입니다. 그 편의 주제는 회사 안에 등록되지 않은 AI 호출이 실제로 몇 건이나 있는지,
+그리고 왜 금지 공지로는 막히지 않는지——카메라 한 대 없는 골목에 "주차 금지" 표지판을 붙이는 것과 같으니까요.
 
-이 도구는 의도적으로 저장소 하나만 보고 끝납니다. 대상이 이백 개이고, 정기 실행이 필요하고, 감사에 견디는 기록이 필요하고, 오탐이 다시 돌아오지 않아야 한다면 그건 다른 층위의 문제입니다. 그래서 **ForgeHelm** 을 만들었습니다.
+이 도구는 의도적으로 저장소 하나만 보고 끝납니다. 대상이 이백 개이고, 정기 실행이 필요하고, 감사에 견디는 기록이 필요하고,
+오탐이 다시 돌아오지 않아야 한다면 그건 다른 층위의 문제입니다. 그래서 우리는 **ForgeHelm** 을 만들었습니다.
 
-하지만 먼저 이 저장소 하나를 훑어 보세요. 대부분이 처음 깨닫는 것은 똑같습니다. 숫자가 맞지 않는다는 것.
+하지만 먼저 이 저장소 하나를 훑어 보세요. 처음의 그 숫자로 돌아가서——아직도 맞다고 생각하십니까?
