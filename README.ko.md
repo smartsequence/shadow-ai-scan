@@ -1,6 +1,6 @@
 # shadow-ai-scan
 
-회사 안에서 AI를 호출하는 곳이 몇 군데입니까? 숫자가 떠올랐나요——기억해 두세요.
+회사 안에서 AI를 호출하는 곳이 몇 군데입니까? 숫자가 떠올랐습니까——기억해 두세요.
 
 이 도구는 저장소 하나를 처음부터 끝까지 읽고, AI를 쓰는 줄을 전부 나열한 뒤, 각각이 얼마나 급하고
 누구에게 넘겨야 하는지 알려 줍니다. 처음 돌려 본 사람의 가장 흔한 반응은 "숫자가 안 맞는다"입니다.
@@ -14,7 +14,7 @@ Python 파일 하나뿐입니다. 설치할 것 없고, 네트워크도 안 쓰�
 
 ## 일단 한 번, 30초
 
-1. 위의 `shadow_ai_scan.py`를 열고 오른쪽 위 **Raw** 를 눌러 저장하세요. 바탕화면이면 됩니다.
+1. 위의 `shadow_ai_scan.py`를 열고 오른쪽 위 **Raw**를 눌러 저장하세요. 바탕화면이면 됩니다.
 2. 터미널을 엽니다 (Windows는 "터미널" 또는 "PowerShell", Mac은 "터미널").
 3. 이 한 줄을 치세요. 끝은 내 저장소 경로로:
 
@@ -32,7 +32,7 @@ Python이 없다면? 아래 〈Python이 아직 없다면〉으로.
 ## 무엇이 나오는가
 
 목록입니다. 각 건에 파일, 줄 번호, 그 줄의 내용, 그리고 "이것이 무슨 뜻인지" 한 문장.
-목록은 세 등급으로 나뉩니다. 보기 좋으라고가 아니라, 움직여야 할 사람이 셋이기 때문입니다.
+목록은 세 등급으로 나뉩니다. 보기 좋으라고 나눈 게 아니라, 움직여야 할 사람이 세 부류이기 때문입니다.
 
 **높은 위험: 키가 코드에 적혀 있음.** 파일을 여는 사람마다 키를 손에 넣습니다. 오늘 교체, 논의할 것 없음.
 **보안팀**에게.
@@ -55,9 +55,9 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 ## 어떻게 찾는가
 
 사람에게 묻지 않습니다. 설문으로는 안 나옵니다——엔지니어는 자기 기준의 "AI"로 답하고,
-그의 눈에 그건 그냥 코딩이니까요. 보는 건 기계가 남긴 흔적, 세 곳:
+본인 눈에는 그건 그냥 코딩이니까요. 보는 건 기계가 남긴 흔적, 세 곳:
 
-1. **코드의 참조.** AI 서비스를 쓰면 코드는 반드시 그 패키지를 참조합니다. 예를 들어 `from openai import OpenAI`. 숨길 수 없습니다.
+1. **코드의 임포트.** AI 서비스를 쓰면 코드는 반드시 그 패키지를 임포트합니다. 예를 들어 `from openai import OpenAI`. 숨길 수 없습니다.
 2. **설정 파일의 주소.** 코드는 얼마든지 깊이 감쌀 수 있지만 트래픽에는 출구가 필요하고, `api.openai.com` 같은 주소는 설정 파일에 남습니다.
 3. **키 자체.** 회사마다 키 접두사가 정해져 있습니다. OpenAI는 `sk-proj-`, Anthropic은 `sk-ant-`, Google은 `AIza`.
    이런 문자열이 있으면 누군가 쓰고 있고, 쓰는 방식에도 문제가 있다는 뜻입니다.
@@ -68,18 +68,18 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 ## 이 도구가 보지 못하는 것
 
-바로 말하겠습니다. 이건 키워드 대조지 깊은 분석이 아닙니다. 전체 실행이 끝날 때마다 못 보는 네 가지를 스스로 맨 아래에 출력합니다.
+솔직히 말하겠습니다. 이건 키워드 대조지 깊은 분석이 아닙니다. 전체 스캔을 돌릴 때마다 못 보는 네 가지를 스스로 맨 아래에 출력합니다.
 
-1. **직접 감싼 AI 호출.** 코드에는 `from vendor.llm_client import ask` 라고만 있고, 아래가 어느 서비스인지 보이지 않습니다.
+1. **직접 감싼 AI 호출.** 코드에는 `from vendor.llm_client import ask`라고만 있고, 그 밑이 어느 서비스인지 보이지 않습니다.
    예를 들어 누군가 2년 전에 내부 모듈을 만들고 퇴사해서, 지금은 그게 어디로 연결되는지 아무도 모르는 경우.
 2. **실행할 때 정해지는 패키지 이름.** 환경 변수나 설정에서 오면 import 줄에 대조할 것이 없습니다.
-3. **줄 끝 주석, 여러 줄 문자열 속 주석.** 줄 앞만 보기 때문에 틀립니다.
-4. **깔렸다고 쓰는 것은 아님.** 의존 목록은 설치 사실만 증명합니다.
+3. **줄 끝 주석, 여러 줄 문자열 속 주석.** 줄 앞만 보기 때문에 잘못 판단합니다.
+4. **설치했다고 쓰는 것은 아님.** 의존 목록은 설치 사실만 증명합니다.
 
 그래서 열 개를 찾았어도 실제로는 더 있을 수 있습니다. **이 목록은 조사의 출발점이지 전부가 아닙니다.**
 저장소에 `vendor/`, `internal/` 같은 디렉터리가 있다면 거기는 사람이 열어 봐야 하는 곳입니다.
 
-앞의 둘은 게으름이 아닙니다. 꿰뚫어 보려면 파일을 넘나드는 데이터 흐름 분석이 필요하고, 그건 하루 오후에 쓸 수 있는 도구가 아닙니다.
+앞의 둘은 게으름이 아닙니다. 꿰뚫어 보려면 파일을 넘나드는 데이터 흐름 분석이 필요하고, 그건 오후 한나절에 만들 수 있는 도구가 아닙니다.
 
 ---
 
@@ -89,7 +89,7 @@ Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
 
 | 운영체제 | 어디에 입력하나 | 먼저 확인 | 없으면 |
 |---|---|---|---|
-| Windows | 시작 버튼 우클릭 → "터미널" 또는 "PowerShell" | `py --version` | [python.org](https://www.python.org/downloads/) 에서 받고, 설치 때 Add python.exe to PATH를 **체크** |
+| Windows | 시작 버튼 우클릭 → "터미널" 또는 "PowerShell" | `py --version` | [python.org](https://www.python.org/downloads/)에서 받고, 설치 때 Add python.exe to PATH를 **체크** |
 | macOS | Command + 스페이스로 "터미널" 검색 | `python3 --version` | `brew install python` 또는 python.org |
 | Linux | 평소 쓰는 터미널 | `python3 --version` | 보통 이미 있음. 없으면 `sudo apt install python3` (Ubuntu/Debian; 다른 배포판은 자체 패키지 관리자로) |
 
@@ -98,30 +98,30 @@ Python 본체만 있으면 됩니다. 패키지는 필요 없습니다.
 가장 많이 막히는 세 곳:
 
 - Windows에서 `python`을 치면 Microsoft Store가 열린다? `py`로 치세요. 그래도 안 되면 Python을 다시 설치하고 이번엔 PATH를 체크.
-- Mac에서 `python`을 못 찾는다고 한다? Mac 에는 `python3`만 있습니다. 정상입니다.
+- Mac에서 `python`을 못 찾는다고 한다? Mac에는 `python3`만 있습니다. 정상입니다.
 - 글자가 깨진다? 창에서 바로 돌리면 안 깨집니다——도구가 스스로 UTF-8로 출력합니다. 깨지는 건 결과를 파일로 저장하거나
   다른 프로그램에 넘겨서 볼 때입니다. 그럴 땐 Windows에서 먼저 `chcp 65001`을 치세요. 지금 창을 UTF-8로 바꾸는 명령이고,
-  65001은 Windows가 UTF-8에 붙인 번호입니다. Windows 에만 있고 macOS와 Linux 에는 필요 없습니다.
-- 깨진 글자가 아니라 네모 상자가 보인다? 옛 창의 글꼴에 그 글자가 없는 것뿐입니다. 글꼴 메뉴를 뒤지지 말고 **Windows 터미널**로 바꾸세요.
+  65001은 Windows가 UTF-8에 붙인 번호입니다. Windows에만 있고 macOS와 Linux에는 필요 없습니다.
+- 깨진 글자가 아니라 네모 상자가 보인다? 예전 콘솔 창의 글꼴에 그 글자가 없는 것뿐입니다. 글꼴 메뉴를 뒤지지 말고 **Windows 터미널**로 바꾸세요.
   시스템에 있는 글꼴을 자동으로 찾아 씁니다 (Windows 11 기본, 시작 버튼 우클릭; Windows 10은 Microsoft Store에서 "Windows Terminal" 설치).
   macOS 터미널도 마찬가지. Linux는 글꼴을 한 번 설치하세요: `sudo apt install fonts-noto-cjk` (Ubuntu/Debian).
 
-⚠ 출력에는 키의 일부가 포함됩니다. 캡처하거나 어디에 붙여넣기 전에 한 번 보세요.
+⚠ 출력에는 키의 일부가 포함됩니다. 캡처하거나 어딘가에 붙여 넣기 전에 한 번 훑어보세요.
 
 ---
 
 ## 조금 더
 
-**언어 바꾸기**: 繁體中文, English, 日本語, 한국어, 简体中文, Deutsch. 지정하지 않으면 OS를 따르고, 판별하지 못하면 영어.
+**언어 바꾸기**: 繁體中文, English, 日本語, 한국어, 简体中文, Deutsch. 지정하지 않으면 OS를 따르고, 판별하지 못하면 영어로 나옵니다.
 
 ```bash
 python3 shadow_ai_scan.py . --lang ja          # ja / ko / en / de / zh-TW / zh-CN
 SHADOW_AI_LANG=ko python3 shadow_ai_scan.py .  # 환경 변수도 됩니다 (macOS / Linux)
-$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell 에서는 이렇게
+$env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell에서는 이렇게
 ```
 
 `--level`은 여섯 언어 표기를 다 받습니다: `--level high`, `--level 高`, `--level 높음` 모두 같습니다.
-(`높은 위험`처럼 띄어쓰기가 있는 표기를 쓰려면 `--level "높은 위험"`으로 따옴표를 감싸야 합니다. 그래서 `높음`／`중간`／`낮음`도 받습니다.)
+(`높은 위험`처럼 띄어쓰기가 있는 표기를 쓰려면 `--level "높은 위험"`으로 따옴표로 감싸야 합니다. 그래서 `높음`／`중간`／`낮음`도 받습니다.)
 
 **CI에 연결**: 오늘 깨끗해도 석 달 뒤면 다시 자랍니다. CI에 넣으면 AI 호출을 추가한 사람의 커밋이 그 자리에서 막힙니다——
 분기마다 전수 점검하는 것보다 훨씬 쌉니다. '높음'이 있으면 종료 코드 1, 없으면 0. 인자 오류나 경로 없음은 2.
@@ -144,12 +144,12 @@ python3 shadow_ai_scan.py . --level high || echo "키 유출 발견. 이 커밋�
 - 의존 목록: `requirements.txt` `Pipfile` `pyproject.toml` `package.json` `go.mod` `Gemfile` `*.csproj` `*.vbproj` `*.fsproj` `packages.config` `pom.xml` `build.gradle(.kts)` `composer.json` `Cargo.toml` `Package.swift`
 
 `.md`는 일부러 뺐습니다. 문서에 `api.openai.com`이 나오는 건 흔한 일이라 잡음만 쌓입니다. 2 MB 넘는 파일은 건너뜁니다.
-`.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build` 에는 들어가지 않습니다.
+`.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build`에는 들어가지 않습니다.
 
 세 단서의 범위는 다릅니다. 키 패턴과 AI 도메인은 **언어와 무관**하게 위의 모든 파일에 적용됩니다
 (키는 Anthropic, OpenAI 신·구, Google 네 접두사뿐. 도메인은 일곱 개).
-SDK 참조는 `import` / `from` / `require` / `using` / `use` 다섯 키워드를 대소문자 무시로 보므로 Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust, PHP를 다룹니다.
-참조 줄과 의존 목록에서는 벤더 이름을 부분 문자열로 맞춰 Rust의 `async_openai`, Swift의 `OpenAIKit`, C# 의 `Anthropic.SDK`도 잡힙니다. 나머지는 단어 단위.
+SDK 임포트는 `import` / `from` / `require` / `using` / `use` 다섯 키워드를 대소문자 무시로 보므로 Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust, PHP를 다룹니다.
+임포트 줄과 의존 목록에서는 벤더 이름을 부분 문자열로 맞춰 Rust의 `async_openai`, Swift의 `OpenAIKit`, C#의 `Anthropic.SDK`도 잡힙니다. 나머지는 단어 단위로 맞춥니다.
 의존 목록은 항상 낮은 위험으로 보고합니다.
 
 ---
@@ -166,6 +166,6 @@ MIT. 수정하든, 사내에서 쓰든, 자체 도구에 넣든 모두 자유입
 그리고 왜 금지 공지로는 막히지 않는지——카메라 한 대 없는 골목에 "주차 금지" 표지판을 붙이는 것과 같으니까요.
 
 이 도구는 의도적으로 저장소 하나만 보고 끝납니다. 대상이 이백 개이고, 정기 실행이 필요하고, 감사에 견디는 기록이 필요하고,
-오탐이 다시 돌아오지 않아야 한다면 그건 다른 층위의 문제입니다. 그래서 우리는 **ForgeHelm** 을 만들었습니다.
+오탐이 다시 돌아오지 않아야 한다면 그건 다른 층위의 문제입니다. 그래서 우리는 **ForgeHelm**을 만들었습니다.
 
 하지만 먼저 이 저장소 하나를 훑어 보세요. 처음의 그 숫자로 돌아가서——아직도 맞다고 생각하십니까?
