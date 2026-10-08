@@ -82,11 +82,41 @@ def key_rule(body: str) -> re.Pattern:
     return re.compile(_B + "(?:" + body + ")")
 
 
+# 由上往下試，第一條命中就停，所以越具體的越前面，最後那條 sk- 是兜底。
+# 各家多半沒有公開金鑰格式，下面大多是秘密掃描器（gitleaks、TruffleHog、betterleaks）
+# 的口徑，2026-10-08 核對過。只認這幾家是刻意的：認得越多，誤報也越多。
 KEY_PATTERNS = [
+    # Anthropic。admin01 有上游佐證；oat、sid 兩種前綴是推測，沒有官方出處
     (key_rule(r"sk-ant-api\d{2}-[A-Za-z0-9_-]{16,}"), "Anthropic API key"),
+    (key_rule(r"sk-ant-admin\d{2}-[A-Za-z0-9_-]{16,}"), "Anthropic admin key"),
+    (key_rule(r"sk-ant-(?:oat|sid)\d{2}-[A-Za-z0-9_-]{16,}"), "Anthropic OAuth/session key"),
+    # OpenRouter（官方格式）。要排在 sk- 兜底前面，不然會被標成分不出是哪一家
+    (key_rule(r"sk-or-v1-[a-f0-9]{64}"), "OpenRouter API key"),
+    # OpenAI。新舊格式的本體中段都有固定標記 T3BlbkFJ，sk-None-、sk-service- 和舊式都靠它認
     (key_rule(r"sk-proj-[A-Za-z0-9_-]{16,}"), "OpenAI project key"),
-    (key_rule(r"sk-[A-Za-z0-9]{32,}"), "OpenAI legacy key"),
+    (key_rule(r"sk-svcacct-[A-Za-z0-9_-]{16,}"), "OpenAI service account key"),
+    (key_rule(r"sk-admin-[A-Za-z0-9_-]{16,}"), "OpenAI admin key"),
+    (key_rule(r"sk-[A-Za-z0-9_-]{20,}T3BlbkFJ[A-Za-z0-9_-]{20,}"), "OpenAI API key"),
+    # 兜底：DeepSeek、通義、Kimi、SiliconFlow 等相容 OpenAI 介面的廠商也用 sk- 開頭，
+    # 形狀互相重疊，硬分家只會標錯名字，所以據實標「分不出是哪一家」。
+    # 要求至少一個數字：本體放寬到含連字號以後，sk-some-long-kebab-name 這種識別字
+    # 也長得夠長，不加這條會被報成高風險；真的金鑰幾乎不可能整串沒有數字。
+    (key_rule(r"sk-(?=[A-Za-z_-]*[0-9])[A-Za-z0-9_-]{32,}"),
+     "sk- key (OpenAI-compatible: DeepSeek and others)"),
+    # Google。AIza 是舊式；2026-05-28 起新建的 Gemini 金鑰改成 AQ. 開頭——
+    # 官方文件沒寫，出處是 Google 員工在官方論壇的回覆（2026-06-17）與 betterleaks PR #230
     (key_rule(r"AIza[A-Za-z0-9_-]{20,}"), "Google API key"),
+    (key_rule(r"AQ\.Ab[A-Za-z0-9_-]{40,}"), "Google Gemini API key (AQ.)"),
+    # Hugging Face（TruffleHog 口徑，本體含數字）
+    (key_rule(r"(?:hf_|api_org_)[A-Za-z0-9]{34}(?![A-Za-z0-9])"), "Hugging Face token"),
+    # Groq
+    (key_rule(r"gsk_[A-Za-z0-9]{52}"), "Groq API key"),
+    # Azure OpenAI／AI Services 新式金鑰：84 字元，中段有固定的 JQQJ99 與 AAA?ACOG
+    (key_rule(r"[A-Za-z0-9]{52}JQQJ99[A-Za-z0-9][A-L][A-Za-z0-9]{12}AAA[ABE]ACOG[A-Za-z0-9]{4}"),
+     "Azure OpenAI / AI Services key"),
+    # AWS Bedrock：長期金鑰 ABSK 開頭；短期金鑰的前綴取自 AWS 官方原始碼
+    (key_rule(r"ABSK[A-Za-z0-9+/]{109,269}={0,2}"
+              r"|bedrock-api-key-YmVkcm9jay5hbWF6b25hd3MuY29t[A-Za-z0-9+/=]+"), "AWS Bedrock API key"),
 ]
 
 # 掃哪些副檔名。不在這裡的檔案連開都不會開——所以這張表就是覆蓋範圍本身。

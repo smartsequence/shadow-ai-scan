@@ -60,7 +60,7 @@ and in their eyes that is just writing code. It looks at the traces machines lea
 1. **Imports in the code.** Use an AI service and the code imports its package, say `from openai import OpenAI`. That cannot hide.
 2. **Hosts in config files.** Code can be wrapped as deep as you like, but the traffic needs a way out,
    and a host like `api.openai.com` ends up in a config file.
-3. **The keys themselves.** Every vendor's keys start the same way: OpenAI `sk-proj-`, Anthropic `sk-ant-`, Google `AIza`.
+3. **The keys themselves.** Every vendor's keys start the same way: OpenAI `sk-proj-`, Anthropic `sk-ant-`, Google `AIza` (newer Gemini keys: `AQ.`).
    A string like that means somebody is using it, and using it badly.
 
 Three clues together answer the question at the top.
@@ -161,7 +161,7 @@ just add it. They sit there so you can edit them.
 `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist` and `build` are not entered.
 
 The three clues have different reach. Key patterns and AI hosts are **language agnostic** and apply to every file type above
-(keys: four prefixes only — Anthropic, OpenAI new and legacy, Google; hosts: seven).
+(keys: eight vendors — Anthropic, OpenAI, Google (including the newer Gemini `AQ.` keys), Azure OpenAI, AWS Bedrock, Hugging Face, Groq and OpenRouter. Any other long `sk-` string is flagged too, but labelled “vendor unknown”, because DeepSeek and other OpenAI-compatible vendors use the same prefix. Other vendors can be added with `--rules`, described above. Hosts: seven).
 SDK imports key on `import` / `from` / `require` / `using` / `use`, case insensitive, which covers Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust and PHP.
 On import lines and in dependency lists the vendor name is matched as a substring, so Rust's `async_openai`, Swift's `OpenAIKit` and C#'s `Anthropic.SDK` are caught; everywhere else it is whole words.
 Dependency lists are always reported as low risk.

@@ -59,7 +59,7 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 1. **コード内のインポート。** AI サービスを使えば、コードは必ずそのパッケージをインポートします。たとえば `from openai import OpenAI`。隠せません。
 2. **設定ファイルの URL。** コードは何重にもラップできますが、通信には出口が要ります。`api.openai.com` のような URL は設定ファイルに残ります。
-3. **鍵そのもの。** 各社の鍵には決まった接頭辞があります。OpenAI は `sk-proj-`、Anthropic は `sk-ant-`、Google は `AIza`。
+3. **鍵そのもの。** 各社の鍵には決まった接頭辞があります。OpenAI は `sk-proj-`、Anthropic は `sk-ant-`、Google は `AIza`（新しい Gemini の鍵は `AQ.`）。
    こういう文字列があれば、誰かが使っていて、しかも使い方に問題があります。
 
 3 つ合わせれば、冒頭の問いに答えられます。
@@ -160,7 +160,7 @@ python3 shadow_ai_scan.py . --level high || echo "鍵の流出あり。このコ
 `.git`、`node_modules`、`__pycache__`、`.venv`、`venv`、`dist`、`build` には入りません。
 
 3 つの手がかりの範囲は違います。鍵のパターンと AI ドメインは**言語に依存せず**、上のすべての種類が対象
-（鍵は Anthropic、OpenAI の新旧、Google の 4 接頭辞のみ。ドメインは 7 つ）。
+（鍵は Anthropic、OpenAI、Google（新しい Gemini の `AQ.` 鍵を含む）、Azure OpenAI、AWS Bedrock、Hugging Face、Groq、OpenRouter の 8 社。それ以外の `sk-` で始まる長い文字列も報告しますが、どの会社のものか特定できない、と表示します。DeepSeek など OpenAI 互換の会社も同じ接頭辞を使うためです。ほかの会社は上で説明した `--rules` で追加できます。ドメインは 7 つ）。
 SDK のインポートは `import` / `from` / `require` / `using` / `use` の 5 語を大文字小文字を区別せず見るので、Python、JS／TS、Go、Ruby、Java、Kotlin、Swift、Scala、Dart、C#／VB.NET、Rust、PHP をカバーします。
 インポート行と依存リストではベンダー名を部分一致で見るので、Rust の `async_openai`、Swift の `OpenAIKit`、C# の `Anthropic.SDK` も拾えます。それ以外の場所は単語単位で照合します。
 依存リストは常に低リスクとして報告します。

@@ -58,7 +58,7 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 1. **程式碼裡的引用。** 用了 AI 服務，程式碼一定會引用它的套件，比方說 `from openai import OpenAI`。藏不住。
 2. **設定檔裡的網址。** 程式碼可以包得很深，但流量總要有個出口，`api.openai.com` 這種網址會留在設定檔裡。
-3. **金鑰本身。** 每一家的金鑰都有固定的開頭：OpenAI 是 `sk-proj-`，Anthropic 是 `sk-ant-`，Google 是 `AIza`。
+3. **金鑰本身。** 每一家的金鑰都有固定的開頭：OpenAI 是 `sk-proj-`，Anthropic 是 `sk-ant-`，Google 是 `AIza`，新的 Gemini 金鑰是 `AQ.`。
    掃到這種字串，就是有人在用，而且用的方式有問題。
 
 三條加起來，就能回答開頭那個問題。
@@ -158,7 +158,7 @@ python3 shadow_ai_scan.py . --level high || echo "有金鑰外洩，這次提交
 `.md` 刻意不掃：文件裡提到 `api.openai.com` 太平常，掃了只會滿江紅。單檔超過 2 MB 跳過；
 `.git`、`node_modules`、`__pycache__`、`.venv`、`venv`、`dist`、`build` 不進去。
 
-三條線索的範圍不一樣：金鑰樣式和 AI 網域**與語言無關**，上面每一種檔都掃（金鑰只認 Anthropic、OpenAI 新舊兩種、Google 四種前綴；網域七個）。
+三條線索的範圍不一樣：金鑰樣式和 AI 網域**與語言無關**，上面每一種檔都掃（金鑰認得 Anthropic、OpenAI、Google（含新的 Gemini `AQ.` 金鑰）、Azure OpenAI、AWS Bedrock、Hugging Face、Groq、OpenRouter 八家；其他 `sk-` 開頭的長字串也會報，但標成分不出是哪一家，因為 DeepSeek 這類相容 OpenAI 介面的廠商也用這個開頭；別家要用上面說的 `--rules` 補；網域七個）。
 SDK 引用認 `import` / `from` / `require` / `using` / `use` 五個關鍵字、忽略大小寫，所以 Python、JS／TS、Go、Ruby、Java、Kotlin、Swift、Scala、Dart、C#／VB.NET、Rust、PHP 都涵蓋。
 引入那一行和相依清單裡，廠商名用子字串比對，Rust 的 `async_openai`、Swift 的 `OpenAIKit`、C# 的 `Anthropic.SDK` 都抓得到；別的地方仍是整詞比對。
 相依清單一律列為低風險。

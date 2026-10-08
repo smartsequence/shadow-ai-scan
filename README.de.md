@@ -60,7 +60,7 @@ und in ihren Augen ist das einfach Programmieren. Es schaut auf die Spuren, die 
 1. **Importe im Code.** Wer einen KI-Dienst nutzt, importiert dessen Paket, etwa `from openai import OpenAI`. Das lässt sich nicht verstecken.
 2. **Adressen in Konfigurationsdateien.** Code lässt sich beliebig tief verpacken, aber der Datenverkehr braucht einen Ausgang,
    und eine Adresse wie `api.openai.com` landet in einer Konfigurationsdatei.
-3. **Die Schlüssel selbst.** Jeder Anbieter hat feste Präfixe: OpenAI `sk-proj-`, Anthropic `sk-ant-`, Google `AIza`.
+3. **Die Schlüssel selbst.** Jeder Anbieter hat feste Präfixe: OpenAI `sk-proj-`, Anthropic `sk-ant-`, Google `AIza` (neuere Gemini-Schlüssel: `AQ.`).
    So eine Zeichenkette heißt: jemand benutzt den Dienst, und zwar auf problematische Weise.
 
 Die drei zusammen beantworten die Frage ganz oben.
@@ -161,7 +161,7 @@ einfach ergänzen. Sie stehen dort, damit Sie sie ändern.
 `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist` und `build` werden nicht betreten.
 
 Die drei Spuren reichen unterschiedlich weit. Schlüsselmuster und KI-Domains sind **sprachunabhängig** und gelten für jede Dateiart oben
-(Schlüssel: nur vier Präfixe — Anthropic, OpenAI neu und alt, Google; Domains: sieben).
+(Schlüssel: acht Anbieter — Anthropic, OpenAI, Google (einschließlich der neueren Gemini-Schlüssel mit `AQ.`), Azure OpenAI, AWS Bedrock, Hugging Face, Groq und OpenRouter. Jede andere lange Zeichenkette mit `sk-` wird ebenfalls gemeldet, aber als „Anbieter unbekannt“ markiert, weil DeepSeek und andere OpenAI-kompatible Anbieter dasselbe Präfix nutzen. Weitere Anbieter lassen sich mit `--rules` (siehe oben) ergänzen; Domains: sieben).
 SDK-Importe hängen an `import` / `from` / `require` / `using` / `use`, ohne Beachtung der Groß-/Kleinschreibung, und decken damit Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust und PHP ab.
 In Import-Zeilen und Abhängigkeitslisten wird der Herstellername als Teilzeichenkette gesucht, daher werden Rusts `async_openai`, Swifts `OpenAIKit` und C#s `Anthropic.SDK` gefunden; sonst gelten ganze Wörter.
 Abhängigkeitslisten werden immer als geringes Risiko gemeldet.

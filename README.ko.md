@@ -59,7 +59,7 @@ python3 shadow_ai_scan.py /path/to/your/repo --level high
 
 1. **코드의 임포트.** AI 서비스를 쓰면 코드는 반드시 그 패키지를 임포트합니다. 예를 들어 `from openai import OpenAI`. 숨길 수 없습니다.
 2. **설정 파일의 주소.** 코드는 얼마든지 깊이 감쌀 수 있지만 트래픽에는 출구가 필요하고, `api.openai.com` 같은 주소는 설정 파일에 남습니다.
-3. **키 자체.** 회사마다 키 접두사가 정해져 있습니다. OpenAI는 `sk-proj-`, Anthropic은 `sk-ant-`, Google은 `AIza`.
+3. **키 자체.** 회사마다 키 접두사가 정해져 있습니다. OpenAI는 `sk-proj-`, Anthropic은 `sk-ant-`, Google은 `AIza`(새 Gemini 키는 `AQ.`).
    이런 문자열이 있으면 누군가 쓰고 있고, 쓰는 방식에도 문제가 있다는 뜻입니다.
 
 셋을 합치면 맨 위의 질문에 답할 수 있습니다.
@@ -161,7 +161,7 @@ python3 shadow_ai_scan.py . --level high || echo "키 유출 발견. 이 커밋�
 `.git`, `node_modules`, `__pycache__`, `.venv`, `venv`, `dist`, `build`에는 들어가지 않습니다.
 
 세 단서의 범위는 다릅니다. 키 패턴과 AI 도메인은 **언어와 무관**하게 위의 모든 파일에 적용됩니다
-(키는 Anthropic, OpenAI 신·구, Google 네 접두사뿐. 도메인은 일곱 개).
+(키는 Anthropic, OpenAI, Google(새 Gemini `AQ.` 키 포함), Azure OpenAI, AWS Bedrock, Hugging Face, Groq, OpenRouter 여덟 업체. 그 밖에 `sk-`로 시작하는 긴 문자열도 보고하지만 어느 업체 것인지 구분할 수 없다고 표시합니다. DeepSeek처럼 OpenAI 호환 업체도 같은 접두사를 쓰기 때문입니다. 다른 업체는 위에서 설명한 `--rules`로 추가하세요. 도메인은 일곱 개).
 SDK 임포트는 `import` / `from` / `require` / `using` / `use` 다섯 키워드를 대소문자 무시로 보므로 Python, JS/TS, Go, Ruby, Java, Kotlin, Swift, Scala, Dart, C#/VB.NET, Rust, PHP를 다룹니다.
 임포트 줄과 의존 목록에서는 벤더 이름을 부분 문자열로 맞춰 Rust의 `async_openai`, Swift의 `OpenAIKit`, C#의 `Anthropic.SDK`도 잡힙니다. 나머지는 단어 단위로 맞춥니다.
 의존 목록은 항상 낮은 위험으로 보고합니다.
