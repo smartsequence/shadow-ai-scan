@@ -123,6 +123,20 @@ $env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # the same on Windows PowerSh
 
 `--level` accepts the word in any of the six languages: `--level high`, `--level 高`, `--level 높음` are the same.
 
+**Newer key formats**: vendors change their key formats. If you don't want to wait for a new release, write the new formats as JSON and pass them with `--rules`; they are checked after the built-in rules:
+
+```json
+{"version": "2026-10-08", "rules": [
+  {"id": "example", "vendor": "Example", "label": "Example API key", "pattern": "exk-[A-Za-z0-9]{32,}"}
+]}
+```
+
+```bash
+python3 shadow_ai_scan.py . --rules my-rules.json
+```
+
+`pattern` is the key itself. The tool adds the left boundary: a key glued to a letter, digit, underscore or hyphen does not count (so `task-…` is not taken for `sk-…`). If anything in the file is wrong, such as broken JSON, a missing field, or a pattern that does not compile, the tool says where and exits 2. It never skips the broken rule and carries on.
+
 **Wire it into CI**: clean today, grown back in three months. In CI, whoever adds an AI call fails that commit —
 far cheaper than an audit every quarter. Exit code 1 if anything is High, 0 otherwise; 2 for a bad argument or a missing path.
 

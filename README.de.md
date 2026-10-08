@@ -123,6 +123,20 @@ $env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # so in Windows PowerShell
 
 `--level` akzeptiert das Wort in allen sechs Sprachen: `--level high`, `--level 高`, `--level 높음` sind dasselbe; auf Deutsch auch `hoch`, `mittel`, `gering`.
 
+**Neuere Schlüsselformate**: Anbieter ändern ihre Schlüsselformate. Wer nicht auf eine neue Version warten will, schreibt die neuen Formate als JSON und übergibt sie mit `--rules`; sie werden nach den eingebauten Regeln geprüft:
+
+```json
+{"version": "2026-10-08", "rules": [
+  {"id": "example", "vendor": "Example", "label": "Example API key", "pattern": "exk-[A-Za-z0-9]{32,}"}
+]}
+```
+
+```bash
+python3 shadow_ai_scan.py . --rules my-rules.json
+```
+
+`pattern` ist nur der Schlüssel selbst. Die linke Grenze setzt das Werkzeug: Ein Schlüssel, der direkt an einem Buchstaben, einer Ziffer, einem Unterstrich oder Bindestrich klebt, zählt nicht (`task-…` gilt also nicht als `sk-…`). Ist irgendetwas in der Datei falsch, etwa kaputtes JSON, ein fehlendes Feld oder ein Muster, das sich nicht kompilieren lässt, nennt das Werkzeug die Stelle und endet mit 2. Es überspringt die kaputte Regel nie stillschweigend.
+
 **In die CI hängen**: heute sauber, in drei Monaten wieder nachgewachsen. In der CI fällt der Commit durch, der einen KI-Aufruf hinzufügt —
 deutlich billiger als eine Inventur pro Quartal. Exit-Code 1, sobald ein Fund auf „hoch“ steht, sonst 0; 2 bei falschem Argument oder fehlendem Pfad.
 

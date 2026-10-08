@@ -22,6 +22,7 @@ Python 3.9+, standard library only. No install, no network, no telemetry.
 from __future__ import annotations
 
 import argparse
+import json
 import locale
 import os
 import re
@@ -68,11 +69,24 @@ AI_HOSTS = [
 
 # 金鑰樣式。注意 AI 家的前綴用連字號（sk-），
 # Stripe 用底線（sk_test_ / sk_live_）——這一個字元之差就是偽陽性的來源。
+#
+# 每條前面都要求「左邊不是英數、底線或連字號」。少了這道邊界，
+# task-、disk-、risk- 後面接一串雜湊值就會被當成 sk- 金鑰報成高風險（2026-10-08 實測）。
+# 例外是字面的 \n、\r、\t：JSON 字串和日誌裡常見 "…\nsk-…"，金鑰左邊緊貼的是字母 n，
+# 只看「左邊不是英數」會把它擋掉、變成漏抓。
+_B = r"(?:(?<![A-Za-z0-9_-])|(?<=\\[nrt]))"
+
+
+def key_rule(body: str) -> re.Pattern:
+    """金鑰本體包上左邊界。本體先包一層括號，裡面的 | 才不會跑到邊界外面去。"""
+    return re.compile(_B + "(?:" + body + ")")
+
+
 KEY_PATTERNS = [
-    (re.compile(r"sk-ant-api\d{2}-[A-Za-z0-9_-]{16,}"), "Anthropic API key"),
-    (re.compile(r"sk-proj-[A-Za-z0-9_-]{16,}"), "OpenAI project key"),
-    (re.compile(r"sk-[A-Za-z0-9]{32,}"), "OpenAI legacy key"),
-    (re.compile(r"AIza[A-Za-z0-9_-]{20,}"), "Google API key"),
+    (key_rule(r"sk-ant-api\d{2}-[A-Za-z0-9_-]{16,}"), "Anthropic API key"),
+    (key_rule(r"sk-proj-[A-Za-z0-9_-]{16,}"), "OpenAI project key"),
+    (key_rule(r"sk-[A-Za-z0-9]{32,}"), "OpenAI legacy key"),
+    (key_rule(r"AIza[A-Za-z0-9_-]{20,}"), "Google API key"),
 ]
 
 # 掃哪些副檔名。不在這裡的檔案連開都不會開——所以這張表就是覆蓋範圍本身。
@@ -144,6 +158,11 @@ STRINGS = {
         "help_lang": "表示言語（既定：auto。SHADOW_AI_LANG でも指定可）",
         "not_a_dir": "ディレクトリが見つかりません：{path}",
         "bad_level": "--level の値が不正です：{value}。使えるのは {choices} です",
+        "help_rules": "追加の鍵ルールファイル（JSON）。組み込みルールの後に適用",
+        "rules_unreadable": "ルールファイル {path} を読めません：{err}",
+        "rules_bad_shape": "ルールファイル {path} の形式が不正です：{where} がないか、型が違います。必要な形：{shape}",
+        "rules_bad_regex": "ルールファイル {path} のルール {id}：正規表現をコンパイルできません（{err}）",
+        "rules_empty_match": "ルールファイル {path} のルール {id}：正規表現が空文字列に一致するため、すべての行が鍵として報告されます",
     },
     "ko": {
         "target": "스캔 대상: ",
@@ -179,6 +198,11 @@ STRINGS = {
         "help_lang": "표시 언어 (기본: auto. SHADOW_AI_LANG 으로도 지정 가능)",
         "not_a_dir": "디렉터리를 찾을 수 없습니다: {path}",
         "bad_level": "--level 값이 잘못되었습니다: {value}. 사용할 수 있는 값은 {choices} 입니다",
+        "help_rules": "추가 키 규칙 파일(JSON). 내장 규칙 뒤에 적용",
+        "rules_unreadable": "규칙 파일 {path}을(를) 읽을 수 없습니다: {err}",
+        "rules_bad_shape": "규칙 파일 {path} 형식이 잘못되었습니다: {where} 이(가) 없거나 형식이 다릅니다. 필요한 형태: {shape}",
+        "rules_bad_regex": "규칙 파일 {path}의 규칙 {id}: 정규식을 컴파일할 수 없습니다 ({err})",
+        "rules_empty_match": "규칙 파일 {path}의 규칙 {id}: 정규식이 빈 문자열과 일치해 모든 줄이 키로 보고됩니다",
     },
     "zh-CN": {
         "target": "扫描目标：",
@@ -214,6 +238,11 @@ STRINGS = {
         "help_lang": "界面语言（默认 auto，也可用 SHADOW_AI_LANG 指定）",
         "not_a_dir": "找不到目录：{path}",
         "bad_level": "--level 的值不对：{value}。可用的是 {choices}",
+        "help_rules": "额外的密钥规则文件（JSON），接在内置规则后面",
+        "rules_unreadable": "读不了规则文件 {path}：{err}",
+        "rules_bad_shape": "规则文件 {path} 格式不对：{where} 缺少或类型不对。要的形状是 {shape}",
+        "rules_bad_regex": "规则文件 {path} 的规则 {id}：正则表达式编译不过（{err}）",
+        "rules_empty_match": "规则文件 {path} 的规则 {id}：正则表达式会匹配空字符串，每一行都会被报成密钥",
     },
     "zh-TW": {
         "target": "掃描目標：",
@@ -249,6 +278,11 @@ STRINGS = {
         "help_lang": "介面語言（預設 auto，也可用 SHADOW_AI_LANG 指定）",
         "not_a_dir": "找不到目錄：{path}",
         "bad_level": "--level 的值不對：{value}。可用的是 {choices}",
+        "help_rules": "額外的金鑰規則檔（JSON），接在內建規則後面",
+        "rules_unreadable": "讀不了規則檔 {path}：{err}",
+        "rules_bad_shape": "規則檔 {path} 格式不對：{where} 缺少或型別不對。要的形狀是 {shape}",
+        "rules_bad_regex": "規則檔 {path} 的規則 {id}：正規式編譯不過（{err}）",
+        "rules_empty_match": "規則檔 {path} 的規則 {id}：正規式會比對到空字串，每一行都會被報成金鑰",
     },
     "en": {
         "target": "Target: ",
@@ -284,6 +318,11 @@ STRINGS = {
         "help_lang": "Interface language (default: auto; SHADOW_AI_LANG also works)",
         "not_a_dir": "Not a directory: {path}",
         "bad_level": "Bad --level value: {value}. Accepted: {choices}",
+        "help_rules": "Extra key rules file (JSON), applied after the built-in rules",
+        "rules_unreadable": "Cannot read rules file {path}: {err}",
+        "rules_bad_shape": "Rules file {path} is malformed: {where} is missing or has the wrong type. Expected shape: {shape}",
+        "rules_bad_regex": "Rules file {path}, rule {id}: pattern does not compile ({err})",
+        "rules_empty_match": "Rules file {path}, rule {id}: pattern matches an empty string, so every line would be reported as a key",
     },
     "de": {
         "target": "Ziel: ",
@@ -319,6 +358,11 @@ STRINGS = {
         "help_lang": "Anzeigesprache (Standard: auto; SHADOW_AI_LANG geht auch)",
         "not_a_dir": "Kein Verzeichnis: {path}",
         "bad_level": "Ungueltiger --level-Wert: {value}. Erlaubt: {choices}",
+        "help_rules": "Zusaetzliche Schluesselregeln (JSON-Datei), angewendet nach den eingebauten Regeln",
+        "rules_unreadable": "Regeldatei {path} nicht lesbar: {err}",
+        "rules_bad_shape": "Regeldatei {path} ist fehlerhaft: {where} fehlt oder hat den falschen Typ. Erwartete Form: {shape}",
+        "rules_bad_regex": "Regeldatei {path}, Regel {id}: Muster laesst sich nicht kompilieren ({err})",
+        "rules_empty_match": "Regeldatei {path}, Regel {id}: Muster passt auf eine leere Zeichenkette, jede Zeile wuerde als Schluessel gemeldet",
     },
 }
 
@@ -658,6 +702,57 @@ def scan_repo(root: Path) -> tuple[list[Finding], int]:
     return findings, scanned
 
 
+class RulesError(Exception):
+    """規則檔不能用。帶著語言表的鍵與參數，訊息要印的時候才組。"""
+
+    def __init__(self, key: str, **kw):
+        super().__init__(key)
+        self.key, self.kw = key, kw
+
+
+RULES_SHAPE = '{"version": "...", "rules": [{"id": "...", "vendor": "...", "label": "...", "pattern": "..."}]}'
+
+
+def load_rules(path: str) -> list[tuple[re.Pattern, str]]:
+    """讀 --rules 指定的 JSON，回傳與 KEY_PATTERNS 同形的清單。
+
+    任何一處不對都整份拒絕，不跳過壞掉的那條——跳過的話使用者以為新格式生效了，
+    其實那條從沒跑過，漏抓也不會有任何訊號。
+    pattern 只寫金鑰本體，左邊界由 key_rule 包，這樣規則檔才能和別的語言的實作共用。
+    沒列在下面的欄位一律忽略，日後格式加欄位也讀得下去。
+    """
+    try:
+        with open(path, encoding="utf-8-sig") as fh:
+            data = json.load(fh)
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        raise RulesError("rules_unreadable", path=path, err=exc) from None
+
+    def need_str(obj, field, where):
+        value = obj.get(field) if isinstance(obj, dict) else None
+        if not isinstance(value, str) or not value:
+            raise RulesError("rules_bad_shape", path=path, where=where, shape=RULES_SHAPE)
+        return value
+
+    need_str(data, "version", "version")
+    rules = data.get("rules")
+    if not isinstance(rules, list):
+        raise RulesError("rules_bad_shape", path=path, where="rules", shape=RULES_SHAPE)
+    out = []
+    for i, rule in enumerate(rules):
+        rid = need_str(rule, "id", f"rules[{i}].id")
+        for field in ("vendor", "label", "pattern"):
+            need_str(rule, field, f"rules[{i}].{field}")
+        try:
+            body = re.compile(rule["pattern"])
+        except re.error as exc:
+            raise RulesError("rules_bad_regex", path=path, id=rid, err=exc) from None
+        # 會比對到空字串的樣式（例如 "a*"）每一行都會命中，等於把整個 repo 報成高風險
+        if body.fullmatch(""):
+            raise RulesError("rules_empty_match", path=path, id=rid)
+        out.append((key_rule(rule["pattern"]), rule["label"]))
+    return out
+
+
 def print_limits(t: Text, total: int, width: int) -> None:
     """工具自己承認看不到的四件事。這一段不是免責聲明，是清單的使用說明。"""
     print(c(t("limits_title"), _BOLD))
@@ -698,7 +793,16 @@ def main() -> int:
     ap.add_argument("--color", choices=["auto", "always", "never"], default="auto",
                     help=t("help_color"))
     ap.add_argument("--lang", choices=sorted(STRINGS), help=t("help_lang"))
+    ap.add_argument("--rules", metavar="FILE.json", help=t("help_rules"))
     args = ap.parse_args()
+
+    if args.rules:
+        # 接在內建清單後面：同一行兩邊都命中時，顯示內建的名稱
+        try:
+            KEY_PATTERNS.extend(load_rules(args.rules))
+        except RulesError as err:
+            print(t(err.key, **err.kw), file=sys.stderr)
+            return 2
 
     level = None
     if args.level:

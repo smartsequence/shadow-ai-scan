@@ -121,6 +121,20 @@ $env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # Windows PowerShell 的寫�
 
 `--level` 六種語言的字都認：`--level 高`、`--level high`、`--level 높음` 一樣。
 
+**套用較新的金鑰格式**：各家的金鑰格式會變。不想等新版的話，把新格式寫成 JSON 交給 `--rules`，它會接在內建規則後面一起比對：
+
+```json
+{"version": "2026-10-08", "rules": [
+  {"id": "example", "vendor": "Example", "label": "Example API key", "pattern": "exk-[A-Za-z0-9]{32,}"}
+]}
+```
+
+```bash
+python3 shadow_ai_scan.py . --rules my-rules.json
+```
+
+`pattern` 只寫金鑰本身，前面的邊界工具會自己加：金鑰左邊緊貼英數、底線或連字號就不算（`task-…` 不會被當成 `sk-…`）。檔案有任何一處不對，像是 JSON 壞掉、少欄位、正規式編譯不過，工具會說哪裡錯並回 2，不會略過壞掉那條繼續跑。
+
 **接進 CI**：今天掃乾淨，三個月後又會長出來。接進 CI，誰新增了 AI 呼叫，那次提交就過不了——
 比三個月盤點一次便宜得多。有任何高風險就回離開碼 1，其餘 0；參數錯或路徑不存在回 2。
 
