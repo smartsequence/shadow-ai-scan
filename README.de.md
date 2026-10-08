@@ -135,7 +135,7 @@ $env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # so in Windows PowerShell
 python3 shadow_ai_scan.py . --rules my-rules.json
 ```
 
-`pattern` ist nur der Schlüssel selbst. Die linke Grenze setzt das Werkzeug: Ein Schlüssel, der direkt an einem Buchstaben, einer Ziffer, einem Unterstrich oder Bindestrich klebt, zählt nicht (`task-…` gilt also nicht als `sk-…`). Ist irgendetwas in der Datei falsch, etwa kaputtes JSON, ein fehlendes Feld oder ein Muster, das sich nicht kompilieren lässt, nennt das Werkzeug die Stelle und endet mit 2. Es überspringt die kaputte Regel nie stillschweigend.
+`pattern` ist nur der Schlüssel selbst. Die linke Grenze setzt das Werkzeug: Ein Schlüssel, der direkt an einem Buchstaben, einer Ziffer, einem Unterstrich oder Bindestrich klebt, zählt nicht (`task-…` gilt also nicht als `sk-…`). Ist irgendetwas in der Datei falsch, etwa kaputtes JSON, ein fehlendes Feld oder ein Muster, das sich nicht kompilieren lässt, nennt das Werkzeug die Stelle und endet mit Exit-Code 2. Es überspringt die kaputte Regel nie stillschweigend.
 
 **In die CI hängen**: heute sauber, in drei Monaten wieder nachgewachsen. In der CI fällt der Commit durch, der einen KI-Aufruf hinzufügt —
 deutlich billiger als eine Inventur pro Quartal. Exit-Code 1, sobald ein Fund auf „hoch“ steht, sonst 0; 2 bei falschem Argument oder fehlendem Pfad.

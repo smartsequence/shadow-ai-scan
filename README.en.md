@@ -135,7 +135,7 @@ $env:SHADOW_AI_LANG="ko"; py shadow_ai_scan.py .   # the same on Windows PowerSh
 python3 shadow_ai_scan.py . --rules my-rules.json
 ```
 
-`pattern` is the key itself. The tool adds the left boundary: a key glued to a letter, digit, underscore or hyphen does not count (so `task-…` is not taken for `sk-…`). If anything in the file is wrong, such as broken JSON, a missing field, or a pattern that does not compile, the tool says where and exits 2. It never skips the broken rule and carries on.
+`pattern` is the key itself. The tool adds the left boundary: a key glued to a letter, digit, underscore or hyphen does not count (so `task-…` is not mistaken for `sk-…`). If anything in the file is wrong, such as broken JSON, a missing field, or a pattern that does not compile, the tool says where and exits 2. It never skips the broken rule and carries on.
 
 **Wire it into CI**: clean today, grown back in three months. In CI, whoever adds an AI call fails that commit —
 far cheaper than an audit every quarter. Exit code 1 if anything is High, 0 otherwise; 2 for a bad argument or a missing path.

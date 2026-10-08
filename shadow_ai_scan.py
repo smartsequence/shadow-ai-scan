@@ -159,7 +159,7 @@ STRINGS = {
         "not_a_dir": "ディレクトリが見つかりません：{path}",
         "bad_level": "--level の値が不正です：{value}。使えるのは {choices} です",
         "help_rules": "追加の鍵ルールファイル（JSON）。組み込みルールの後に適用",
-        "rules_unreadable": "ルールファイル {path} を読めません：{err}",
+        "rules_unreadable": "ルールファイル {path} を読み込めません：{err}",
         "rules_bad_shape": "ルールファイル {path} の形式が不正です：{where} がないか、型が違います。必要な形：{shape}",
         "rules_bad_regex": "ルールファイル {path} のルール {id}：正規表現をコンパイルできません（{err}）",
         "rules_empty_match": "ルールファイル {path} のルール {id}：正規表現が空文字列に一致するため、すべての行が鍵として報告されます",
@@ -200,7 +200,7 @@ STRINGS = {
         "bad_level": "--level 값이 잘못되었습니다: {value}. 사용할 수 있는 값은 {choices} 입니다",
         "help_rules": "추가 키 규칙 파일(JSON). 내장 규칙 뒤에 적용",
         "rules_unreadable": "규칙 파일 {path}을(를) 읽을 수 없습니다: {err}",
-        "rules_bad_shape": "규칙 파일 {path} 형식이 잘못되었습니다: {where} 이(가) 없거나 형식이 다릅니다. 필요한 형태: {shape}",
+        "rules_bad_shape": "규칙 파일 {path}의 형식이 잘못되었습니다: {where}이(가) 없거나 타입이 다릅니다. 필요한 형태: {shape}",
         "rules_bad_regex": "규칙 파일 {path}의 규칙 {id}: 정규식을 컴파일할 수 없습니다 ({err})",
         "rules_empty_match": "규칙 파일 {path}의 규칙 {id}: 정규식이 빈 문자열과 일치해 모든 줄이 키로 보고됩니다",
     },
@@ -362,7 +362,7 @@ STRINGS = {
         "rules_unreadable": "Regeldatei {path} nicht lesbar: {err}",
         "rules_bad_shape": "Regeldatei {path} ist fehlerhaft: {where} fehlt oder hat den falschen Typ. Erwartete Form: {shape}",
         "rules_bad_regex": "Regeldatei {path}, Regel {id}: Muster laesst sich nicht kompilieren ({err})",
-        "rules_empty_match": "Regeldatei {path}, Regel {id}: Muster passt auf eine leere Zeichenkette, jede Zeile wuerde als Schluessel gemeldet",
+        "rules_empty_match": "Regeldatei {path}, Regel {id}: Muster trifft auch auf die leere Zeichenkette zu, jede Zeile wuerde als Schluessel gemeldet",
     },
 }
 
